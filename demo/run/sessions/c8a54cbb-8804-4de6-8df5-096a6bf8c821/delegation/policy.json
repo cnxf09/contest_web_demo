@@ -1,0 +1,6 @@
+{
+  "agent_id": "bookstore-agent",
+  "allowed_claims": ["age_over_18"],
+  "created": "2026-04-02T09:00:01Z",
+  "expires": "2027-04-02T00:00:00Z"
+}

@@ -1,0 +1,9 @@
+MdocAnoncredDemo.RoundTripAgeOver18 1 6.28923
+MdocAnoncredDemo.RoundTripTwoClaims 1 6.64872
+MdocAnoncredDemo.TamperedProofFails 1 6.21325
+MdocAnoncredDemo.RequestTranscriptIsFresh 1 11.3378
+MdocAnoncredDemo.PresentationCannotBeReplayedAcrossRequests 1 11.8988
+MdocAnoncredDemo.CborTaggedDateEncoding 1 0.00371712
+MdocAnoncredDemo.CustomIssuedMdocParses 1 0.004826
+MdocAnoncredDemo.CustomIssueRoundTrip 1 6.55062
+---

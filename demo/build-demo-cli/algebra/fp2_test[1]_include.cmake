@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-demo-cli/algebra/fp2_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-demo-cli/algebra/fp2_test[1]_tests.cmake")
+else()
+  add_test(fp2_test_NOT_BUILT fp2_test_NOT_BUILT)
+endif()

@@ -1,0 +1,5 @@
+if(EXISTS "/Users/cnxf/信安赛/代理签名/translated_atrps/code/longfellow-zk/build-delegation/circuits/tests/anoncred/small_test[1]_tests.cmake")
+  include("/Users/cnxf/信安赛/代理签名/translated_atrps/code/longfellow-zk/build-delegation/circuits/tests/anoncred/small_test[1]_tests.cmake")
+else()
+  add_test(small_test_NOT_BUILT small_test_NOT_BUILT)
+endif()

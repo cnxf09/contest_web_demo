@@ -1,0 +1,11 @@
+{
+  "response_type": "vp_token",
+  "client_id": "mdoc-anoncred-demo",
+  "response_uri": "https://verifier.example/callback",
+  "nonce": "0x8301c5a2954b19e4a58c09d38623da46d0df4a81ccf3302f96ebf8cd79bcd4c2",
+  "doc_type": "org.iso.18013.5.1.mDL",
+  "claims": [
+    {"alias": "age_over_18", "namespace": "org.iso.18013.5.1", "element_identifier": "age_over_18"},
+    {"alias": "family_name_mustermann", "namespace": "org.iso.18013.5.1", "element_identifier": "family_name"}
+  ]
+}

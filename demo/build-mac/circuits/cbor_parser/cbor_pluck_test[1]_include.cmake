@@ -1,0 +1,5 @@
+if(EXISTS "/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/circuits/cbor_parser/cbor_pluck_test[1]_tests.cmake")
+  include("/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/circuits/cbor_parser/cbor_pluck_test[1]_tests.cmake")
+else()
+  add_test(cbor_pluck_test_NOT_BUILT cbor_pluck_test_NOT_BUILT)
+endif()

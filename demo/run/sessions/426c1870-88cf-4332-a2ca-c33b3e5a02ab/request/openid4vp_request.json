@@ -1,0 +1,10 @@
+{
+  "response_type": "vp_token",
+  "client_id": "mdoc-anoncred-demo",
+  "response_uri": "https://verifier.example/callback",
+  "nonce": "0x0d85e218e73aa473b0fa767f91d827b76e4023a4cfe97303a0ae333a27e27568",
+  "doc_type": "org.iso.18013.5.1.mDL",
+  "claims": [
+    {"alias": "age_over_18", "namespace": "org.iso.18013.5.1", "element_identifier": "age_over_18"}
+  ]
+}

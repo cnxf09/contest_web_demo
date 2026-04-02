@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/clang-build-release/sumcheck/quad_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/clang-build-release/sumcheck/quad_test[1]_tests.cmake")
+else()
+  add_test(quad_test_NOT_BUILT quad_test_NOT_BUILT)
+endif()

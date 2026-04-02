@@ -1,0 +1,36 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/testing/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/util/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/algebra/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/arrays/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/merkle/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/ligero/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/proto/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/random/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/sumcheck/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/gf2k/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/cbor/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/ec/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/zk/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/circuits/cbor_parser/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/circuits/compiler/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/circuits/ecdsa/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/circuits/logic/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/circuits/mac/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/circuits/mdoc/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/circuits/sha/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/examples/anoncred/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/examples/mdoc_anoncred/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/examples/delegation_demo/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/circuits/tests/anoncred/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/circuits/tests/sha3/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/circuits/tests/base64/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/circuits/tests/jwt/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/circuits/tests/ripemd/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/\u4ee3\u7406\u7b7e\u540d/translated_atrps/code/longfellow-zk/build-delegation/circuits/tests/mdoc/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -1,0 +1,24 @@
+AnoncredDemo.RoundTripSuccess 1 3.12747
+AnoncredDemo.TamperedProofFails 12 0.235493
+AnoncredDemo.RoundTripAgeOver18 11 0.262639
+AnoncredDemo.RoundTripAgeOver21 11 0.254981
+AnoncredDemo.RoundTripDateOfBirth 11 0.257897
+AnoncredDemo.CustomIssuedCredentialRoundTrip 8 0.35418
+AnoncredDemo.TamperedDisclosedValueFails 7 0.399754
+AnoncredDemo.RequestTranscriptIsFresh 6 0.00163666
+AnoncredDemo.ReplayAcrossRequestsFails 6 0.46913
+AnoncredDemo.WrongHolderKeyFails 5 0.263504
+AnoncredDemo.AgeClaimsAreDerivedFromDob 3 1.87611
+AnoncredDemo.RoundTripAgeRange18To21 2 1.43611
+AnoncredDemo.RoundTripAgeThresholds18And21 2 1.42665
+AnoncredDemo.AgeRangePolicyUsesDob 2 1.43453
+AnoncredDemo.AgeThresholdsPolicyUsesDob 2 1.47159
+MdocAnoncredDemo.RoundTripAgeOver18 7 1.41352
+MdocAnoncredDemo.RoundTripTwoClaims 6 1.72299
+MdocAnoncredDemo.TamperedProofFails 6 1.75162
+MdocAnoncredDemo.RequestTranscriptIsFresh 5 3.37485
+MdocAnoncredDemo.PresentationCannotBeReplayedAcrossRequests 5 3.40576
+MdocAnoncredDemo.CborTaggedDateEncoding 3 0.000683093
+MdocAnoncredDemo.CustomIssuedMdocParses 2 0.00156589
+MdocAnoncredDemo.CustomIssueRoundTrip 2 4.79479
+---

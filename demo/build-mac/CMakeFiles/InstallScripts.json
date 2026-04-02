@@ -1,0 +1,35 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/testing/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/util/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/algebra/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/arrays/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/merkle/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/ligero/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/proto/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/random/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/sumcheck/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/gf2k/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/cbor/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/ec/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/zk/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/circuits/cbor_parser/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/circuits/compiler/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/circuits/ecdsa/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/circuits/logic/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/circuits/mac/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/circuits/mdoc/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/circuits/sha/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/examples/anoncred/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/examples/mdoc_anoncred/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/circuits/tests/anoncred/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/circuits/tests/sha3/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/circuits/tests/base64/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/circuits/tests/jwt/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/circuits/tests/ripemd/cmake_install.cmake",
+		"/Users/cnxf/\u4fe1\u5b89\u8d5b/BaisWork/longfellow-zk/build-mac/circuits/tests/mdoc/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

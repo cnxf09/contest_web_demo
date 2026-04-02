@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-verifier/circuits/tests/jwt/jwt_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-verifier/circuits/tests/jwt/jwt_test[1]_tests.cmake")
+else()
+  add_test(jwt_test_NOT_BUILT jwt_test_NOT_BUILT)
+endif()

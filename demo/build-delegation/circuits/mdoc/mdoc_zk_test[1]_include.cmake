@@ -1,0 +1,5 @@
+if(EXISTS "/Users/cnxf/信安赛/代理签名/translated_atrps/code/longfellow-zk/build-delegation/circuits/mdoc/mdoc_zk_test[1]_tests.cmake")
+  include("/Users/cnxf/信安赛/代理签名/translated_atrps/code/longfellow-zk/build-delegation/circuits/mdoc/mdoc_zk_test[1]_tests.cmake")
+else()
+  add_test(mdoc_zk_test_NOT_BUILT mdoc_zk_test_NOT_BUILT)
+endif()

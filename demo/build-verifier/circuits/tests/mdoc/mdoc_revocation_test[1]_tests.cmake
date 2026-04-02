@@ -1,0 +1,5 @@
+add_test([=[mdoc.mdoc_revocation_list_test]=]  /home/cat/longfellow-zk/build-verifier/circuits/tests/mdoc/mdoc_revocation_test [==[--gtest_filter=mdoc.mdoc_revocation_list_test]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[mdoc.mdoc_revocation_list_test]=]  PROPERTIES WORKING_DIRECTORY /home/cat/longfellow-zk/build-verifier/circuits/tests/mdoc SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+add_test([=[mdoc.mdoc_revocation_span_test]=]  /home/cat/longfellow-zk/build-verifier/circuits/tests/mdoc/mdoc_revocation_test [==[--gtest_filter=mdoc.mdoc_revocation_span_test]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[mdoc.mdoc_revocation_span_test]=]  PROPERTIES WORKING_DIRECTORY /home/cat/longfellow-zk/build-verifier/circuits/tests/mdoc SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+set(  mdoc_revocation_test_TESTS mdoc.mdoc_revocation_list_test mdoc.mdoc_revocation_span_test)

@@ -1,0 +1,5 @@
+if(EXISTS "/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/ec/elliptic_curve_test[1]_tests.cmake")
+  include("/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/ec/elliptic_curve_test[1]_tests.cmake")
+else()
+  add_test(elliptic_curve_test_NOT_BUILT elliptic_curve_test_NOT_BUILT)
+endif()

@@ -1,0 +1,1 @@
+/usr/bin/clang++ -O3 -DNDEBUG CMakeFiles/mdoc_anoncred_holder.dir/holder/main.cc.o -o mdoc_anoncred_holder  libmdoc_anoncred_demo_lib.a ../../circuits/mdoc/libmdoc.a -lcrypto -lzstd 

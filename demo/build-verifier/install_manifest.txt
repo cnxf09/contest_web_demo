@@ -1,0 +1,2 @@
+/home/cat/longfellow-zk/reference/verifier-service/install/lib/libmdoc_static.a
+/home/cat/longfellow-zk/reference/verifier-service/install/include/mdoc_zk.h

@@ -1,0 +1,5 @@
+add_test([=[Sysdep.mulhl64]=]  /home/cat/longfellow-zk/build-verifier/algebra/sysdep_test [==[--gtest_filter=Sysdep.mulhl64]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[Sysdep.mulhl64]=]  PROPERTIES WORKING_DIRECTORY /home/cat/longfellow-zk/build-verifier/algebra SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+add_test([=[Sysdep.mulhl32]=]  /home/cat/longfellow-zk/build-verifier/algebra/sysdep_test [==[--gtest_filter=Sysdep.mulhl32]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[Sysdep.mulhl32]=]  PROPERTIES WORKING_DIRECTORY /home/cat/longfellow-zk/build-verifier/algebra SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+set(  sysdep_test_TESTS Sysdep.mulhl64 Sysdep.mulhl32)

@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-bringup/ligero/ligero_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-bringup/ligero/ligero_test[1]_tests.cmake")
+else()
+  add_test(ligero_test_NOT_BUILT ligero_test_NOT_BUILT)
+endif()

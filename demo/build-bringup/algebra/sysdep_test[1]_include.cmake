@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-bringup/algebra/sysdep_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-bringup/algebra/sysdep_test[1]_tests.cmake")
+else()
+  add_test(sysdep_test_NOT_BUILT sysdep_test_NOT_BUILT)
+endif()

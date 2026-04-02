@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-demo-cli/circuits/tests/anoncred/small_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-demo-cli/circuits/tests/anoncred/small_test[1]_tests.cmake")
+else()
+  add_test(small_test_NOT_BUILT small_test_NOT_BUILT)
+endif()

@@ -1,0 +1,5 @@
+if(EXISTS "/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/util/ceildiv_test[1]_tests.cmake")
+  include("/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/util/ceildiv_test[1]_tests.cmake")
+else()
+  add_test(ceildiv_test_NOT_BUILT ceildiv_test_NOT_BUILT)
+endif()

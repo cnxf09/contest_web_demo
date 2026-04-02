@@ -1,0 +1,6 @@
+{
+  "agent_id": "test-agent",
+  "allowed_claims": ["family_name", "birth_date"],
+  "created": "2026-04-01T11:29:39Z",
+  "expires": "2027-01-01T00:00:00Z"
+}

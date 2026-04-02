@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-verifier/circuits/ecdsa/verify_external_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-verifier/circuits/ecdsa/verify_external_test[1]_tests.cmake")
+else()
+  add_test(verify_external_test_NOT_BUILT verify_external_test_NOT_BUILT)
+endif()

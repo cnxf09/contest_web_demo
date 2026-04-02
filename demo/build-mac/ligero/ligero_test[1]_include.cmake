@@ -1,0 +1,5 @@
+if(EXISTS "/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/ligero/ligero_test[1]_tests.cmake")
+  include("/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/ligero/ligero_test[1]_tests.cmake")
+else()
+  add_test(ligero_test_NOT_BUILT ligero_test_NOT_BUILT)
+endif()

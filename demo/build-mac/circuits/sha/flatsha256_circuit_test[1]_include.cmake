@@ -1,0 +1,5 @@
+if(EXISTS "/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/circuits/sha/flatsha256_circuit_test[1]_tests.cmake")
+  include("/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/circuits/sha/flatsha256_circuit_test[1]_tests.cmake")
+else()
+  add_test(flatsha256_circuit_test_NOT_BUILT flatsha256_circuit_test_NOT_BUILT)
+endif()

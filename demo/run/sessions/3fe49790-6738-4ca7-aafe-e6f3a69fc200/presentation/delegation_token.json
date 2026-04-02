@@ -1,0 +1,14 @@
+{
+  "agent_pkx": "0x85944ffdda8d8020e1983a8a0faff66107a4fa36667dfed846059240ea510642",
+  "agent_pky": "0x9327ae097e83f49c0aaa5b9f43508094f1e51c39069aedd90f15baf8c8169c77",
+  "delegation_msg": "0xfe3646aa257edf35105d05dab409d83e01fc7be38cae7c1d59f0101c336452cb",
+  "delegation_sig": "0x1e214d788ecbde761ef31d8745a4d834dc41ef9f61cb301afe3fdc578541353280d761f4750dd781010072fe2e6540b01156a1c5ea5c841523d2b35964ed197f",
+  "device_pkx": "0x10f2e610a582992460db29459e0dea1b15ee2c978b63fc3b7f4947249ec5a57f",
+  "device_pky": "0xcd8ea4fe81bc46237124cca7265c1873a1c1c0f389dc8a49693aa5d53f9a6863",
+  "policy": {
+    "agent_id": "bookstore-agent",
+    "allowed_claims": ["age_over_18"],
+    "created": "2026-04-02T09:20:04Z",
+    "expires": "2027-04-02T00:00:00Z"
+  }
+}

@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-demo-cli/random/random_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-demo-cli/random/random_test[1]_tests.cmake")
+else()
+  add_test(random_test_NOT_BUILT random_test_NOT_BUILT)
+endif()

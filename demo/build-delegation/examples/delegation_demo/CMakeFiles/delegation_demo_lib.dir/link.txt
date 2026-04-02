@@ -1,0 +1,2 @@
+/usr/bin/ar qc libdelegation_demo_lib.a CMakeFiles/delegation_demo_lib.dir/shared/delegation_crypto.cc.o CMakeFiles/delegation_demo_lib.dir/shared/delegation_files.cc.o CMakeFiles/delegation_demo_lib.dir/alice/delegate.cc.o CMakeFiles/delegation_demo_lib.dir/agent/present.cc.o CMakeFiles/delegation_demo_lib.dir/verifier/verify.cc.o
+/usr/bin/ranlib libdelegation_demo_lib.a

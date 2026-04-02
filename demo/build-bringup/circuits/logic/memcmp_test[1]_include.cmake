@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-bringup/circuits/logic/memcmp_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-bringup/circuits/logic/memcmp_test[1]_tests.cmake")
+else()
+  add_test(memcmp_test_NOT_BUILT memcmp_test_NOT_BUILT)
+endif()

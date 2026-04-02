@@ -1,0 +1,6 @@
+# CMake generated Testfile for 
+# Source directory: /Users/cnxf/信安赛/代理签名/translated_atrps/code/longfellow-zk/lib/examples/delegation_demo
+# Build directory: /Users/cnxf/信安赛/代理签名/translated_atrps/code/longfellow-zk/build-delegation/examples/delegation_demo
+# 
+# This file includes the relevant testing commands required for 
+# testing this directory and lists subdirectories to be tested as well.

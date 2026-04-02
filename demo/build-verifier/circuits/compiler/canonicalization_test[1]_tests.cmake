@@ -1,0 +1,5 @@
+add_test([=[Compiler.CanonicalizationSimple]=]  /home/cat/longfellow-zk/build-verifier/circuits/compiler/canonicalization_test [==[--gtest_filter=Compiler.CanonicalizationSimple]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[Compiler.CanonicalizationSimple]=]  PROPERTIES WORKING_DIRECTORY /home/cat/longfellow-zk/build-verifier/circuits/compiler SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+add_test([=[Compiler.CanonicalizationMatMul]=]  /home/cat/longfellow-zk/build-verifier/circuits/compiler/canonicalization_test [==[--gtest_filter=Compiler.CanonicalizationMatMul]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[Compiler.CanonicalizationMatMul]=]  PROPERTIES WORKING_DIRECTORY /home/cat/longfellow-zk/build-verifier/circuits/compiler SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+set(  canonicalization_test_TESTS Compiler.CanonicalizationSimple Compiler.CanonicalizationMatMul)

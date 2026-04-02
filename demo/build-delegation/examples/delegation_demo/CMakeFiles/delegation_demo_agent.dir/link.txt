@@ -1,0 +1,1 @@
+/usr/bin/clang++ -O3 -DNDEBUG -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/delegation_demo_agent.dir/agent/main.cc.o -o delegation_demo_agent   -L/opt/homebrew/lib  -Wl,-rpath,/opt/homebrew/lib libdelegation_demo_lib.a ../mdoc_anoncred/libmdoc_anoncred_demo_lib.a ../../circuits/mdoc/libmdoc.a -lcrypto -lzstd

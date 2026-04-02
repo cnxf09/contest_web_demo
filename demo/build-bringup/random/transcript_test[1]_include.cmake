@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-bringup/random/transcript_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-bringup/random/transcript_test[1]_tests.cmake")
+else()
+  add_test(transcript_test_NOT_BUILT transcript_test_NOT_BUILT)
+endif()

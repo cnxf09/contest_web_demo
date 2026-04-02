@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-verifier/algebra/reed_solomon_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-verifier/algebra/reed_solomon_test[1]_tests.cmake")
+else()
+  add_test(reed_solomon_test_NOT_BUILT reed_solomon_test_NOT_BUILT)
+endif()

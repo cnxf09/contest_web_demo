@@ -1,0 +1,5 @@
+if(EXISTS "/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/circuits/logic/bit_adder_test[1]_tests.cmake")
+  include("/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/circuits/logic/bit_adder_test[1]_tests.cmake")
+else()
+  add_test(bit_adder_test_NOT_BUILT bit_adder_test_NOT_BUILT)
+endif()

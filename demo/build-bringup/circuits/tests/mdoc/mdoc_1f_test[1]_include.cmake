@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-bringup/circuits/tests/mdoc/mdoc_1f_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-bringup/circuits/tests/mdoc/mdoc_1f_test[1]_tests.cmake")
+else()
+  add_test(mdoc_1f_test_NOT_BUILT mdoc_1f_test_NOT_BUILT)
+endif()

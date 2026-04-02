@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build/gf2k/lch14_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build/gf2k/lch14_test[1]_tests.cmake")
+else()
+  add_test(lch14_test_NOT_BUILT lch14_test_NOT_BUILT)
+endif()

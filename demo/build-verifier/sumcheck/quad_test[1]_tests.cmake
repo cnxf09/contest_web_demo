@@ -1,0 +1,7 @@
+add_test([=[Quad.BindG]=]  /home/cat/longfellow-zk/build-verifier/sumcheck/quad_test [==[--gtest_filter=Quad.BindG]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[Quad.BindG]=]  PROPERTIES WORKING_DIRECTORY /home/cat/longfellow-zk/build-verifier/sumcheck SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+add_test([=[Quad.BindH]=]  /home/cat/longfellow-zk/build-verifier/sumcheck/quad_test [==[--gtest_filter=Quad.BindH]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[Quad.BindH]=]  PROPERTIES WORKING_DIRECTORY /home/cat/longfellow-zk/build-verifier/sumcheck SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+add_test([=[Quad.equality]=]  /home/cat/longfellow-zk/build-verifier/sumcheck/quad_test [==[--gtest_filter=Quad.equality]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[Quad.equality]=]  PROPERTIES WORKING_DIRECTORY /home/cat/longfellow-zk/build-verifier/sumcheck SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+set(  quad_test_TESTS Quad.BindG Quad.BindH Quad.equality)

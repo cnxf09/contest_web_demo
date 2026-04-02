@@ -1,0 +1,45 @@
+Start testing: Mar 09 14:07 CST
+----------------------------------------------------------
+53/61 Testing: mdoc.mdoc_small_test
+53/61 Test: mdoc.mdoc_small_test
+Command: "/home/cat/longfellow-zk/build-bringup/circuits/tests/anoncred/small_test" "--gtest_filter=mdoc.mdoc_small_test" "--gtest_also_run_disabled_tests"
+Directory: /home/cat/longfellow-zk/build-bringup/circuits/tests/anoncred
+"mdoc.mdoc_small_test" start time: Mar 09 14:07 CST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = mdoc.mdoc_small_test
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from mdoc
+[ RUN      ] mdoc.mdoc_small_test
+[INFO][+ 1343.168 ms] Compiled circuit: mdocsmall
+[INFO][+    0.021 ms]  depth: 12 wires: 592555 in: 20171 out:4 use:494325 ovh:98230 t:1799704 cse:481591 notn:1361477
+[INFO][+   37.699 ms] Witness done
+[INFO][+    0.362 ms] Fill done
+[INFO][+    0.076 ms] ZK Commit start
+[INFO][+   76.116 ms] ZK Commitment done
+[INFO][+  216.347 ms] ZK sumcheck done
+[INFO][+    1.198 ms] ZK constraints done
+[INFO][+   23.586 ms] Prover Done: flag
+[INFO][+    0.030 ms] ZK Prover done
+[INFO][+    0.181 ms] com:32, sc:21184, com_proof:356940 [2730 el, 4536 el, 782 d in 24 rows]: 378156b
+[INFO][+    0.012 ms] zkp len: 378156 bytes
+[INFO][+    0.156 ms] verifier: recv commit
+[INFO][+    0.010 ms] verifier: verify
+[INFO][+  188.204 ms] verify done: ok
+[INFO][+    0.032 ms] ZK Verify done
+[       OK ] mdoc.mdoc_small_test (1887 ms)
+[----------] 1 test from mdoc (1887 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1887 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   1.90 sec
+----------------------------------------------------------
+Test Passed.
+"mdoc.mdoc_small_test" end time: Mar 09 14:07 CST
+"mdoc.mdoc_small_test" time elapsed: 00:00:01
+----------------------------------------------------------
+
+End testing: Mar 09 14:07 CST

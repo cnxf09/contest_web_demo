@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-demo-cli/circuits/logic/counter_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-demo-cli/circuits/logic/counter_test[1]_tests.cmake")
+else()
+  add_test(counter_test_NOT_BUILT counter_test_NOT_BUILT)
+endif()

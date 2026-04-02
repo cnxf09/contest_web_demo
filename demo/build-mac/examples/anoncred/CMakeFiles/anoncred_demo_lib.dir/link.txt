@@ -1,0 +1,2 @@
+/usr/bin/ar qc libanoncred_demo_lib.a CMakeFiles/anoncred_demo_lib.dir/shared/device_key.cc.o CMakeFiles/anoncred_demo_lib.dir/shared/files.cc.o CMakeFiles/anoncred_demo_lib.dir/shared/request.cc.o CMakeFiles/anoncred_demo_lib.dir/shared/small_demo.cc.o CMakeFiles/anoncred_demo_lib.dir/issuer/issue.cc.o CMakeFiles/anoncred_demo_lib.dir/holder/keygen.cc.o CMakeFiles/anoncred_demo_lib.dir/holder/prove.cc.o CMakeFiles/anoncred_demo_lib.dir/verifier/verify.cc.o
+/usr/bin/ranlib libanoncred_demo_lib.a

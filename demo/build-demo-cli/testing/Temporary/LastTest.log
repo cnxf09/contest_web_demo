@@ -1,0 +1,407 @@
+Start testing: Mar 09 21:11 CST
+----------------------------------------------------------
+67/83 Testing: MdocAnoncredDemo.RoundTripAgeOver18
+67/83 Test: MdocAnoncredDemo.RoundTripAgeOver18
+Command: "/home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred/mdoc_anoncred_demo_test" "--gtest_filter=MdocAnoncredDemo.RoundTripAgeOver18" "--gtest_also_run_disabled_tests"
+Directory: /home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred
+"MdocAnoncredDemo.RoundTripAgeOver18" start time: Mar 09 21:11 CST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = MdocAnoncredDemo.RoundTripAgeOver18
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MdocAnoncredDemo
+[ RUN      ] MdocAnoncredDemo.RoundTripAgeOver18
+[INFO][+  378.909 ms] Compiled circuit: sig
+[INFO][+    0.029 ms]  depth: 22 wires: 223876 in: 3739 out:90 use:166479 ovh:57397 t:481833 cse:26852 notn:353423
+[INFO][+   52.085 ms] sig bytes: 5834530 id:2845210af05740e6e3e054762f9e35ff5fc4fb23088716e369f7cf73eb61df2d
+[INFO][+ 7058.571 ms] Compiled circuit: hash
+[INFO][+    0.057 ms]  depth: 18 wires: 3452075 in: 85118 out:2 use:3249805 ovh:202270 t:7757579 cse:7531950 notn:6181135
+[INFO][+  505.455 ms] hash bytes:98932952 id:58248d20ded3b19b0996e478dda6afacba794fa2b1f0802771430bc0dca7d106
+[INFO][+  979.775 ms] zstd from 98932952 --> 299152
+[INFO][+   30.648 ms] bytes len: 98932952
+[INFO][+   69.219 ms] circuit created. h[in:85118 q:17], s[in:3739 q:21]
+[INFO][+    1.788 ms] ZK Commit start
+[INFO][+   51.482 ms] ZK Commitment done
+[INFO][+    0.026 ms] ZK Commit start
+[INFO][+   32.121 ms] ZK Commitment done
+[INFO][+    0.050 ms] commit created. h[nl:17, ni:85118], s[nl:21, ni:3739] hc[b:461 r:266] sc[b:455 r:19]
+[INFO][+  349.199 ms] ZK sumcheck done
+[INFO][+    1.405 ms] ZK constraints done
+[INFO][+    3.540 ms] Prover Done: flag
+[INFO][+    0.029 ms] ZK hash proof done
+[INFO][+   76.820 ms] ZK sumcheck done
+[INFO][+    0.696 ms] ZK constraints done
+[INFO][+    4.245 ms] Prover Done: flag
+[INFO][+    0.034 ms] ZK signature proof done
+[INFO][+    4.286 ms] com:32, sc:18656, com_proof:142408 [922 el, 35112 el, 501 d in 266 rows]: 161096b
+[INFO][+    0.096 ms] com:32, sc:36032, com_proof:163052 [910 el, 2508 el, 505 d in 19 rows]: 199116b
+[INFO][+    0.001 ms] proof_len: 360308 
+[INFO][+   25.190 ms] bytes len: 98932952
+[INFO][+   65.210 ms] circuit created. h[in:85118], s[in:3739]
+[INFO][+    0.124 ms] proof params: h[nl:17, ni:85118], s[nl:21, ni:3739] hc[b:461 r:266] sc[b:455 r:19]
+[INFO][+    1.312 ms] proofs read
+[INFO][+    0.024 ms] verifier: recv commit
+[INFO][+    0.001 ms] verifier: recv commit
+[INFO][+    0.046 ms] verifier: verify
+[INFO][+  105.317 ms] verify done: ok
+[INFO][+    0.019 ms] verifier: verify
+[INFO][+   63.328 ms] verify done: ok
+[       OK ] MdocAnoncredDemo.RoundTripAgeOver18 (9861 ms)
+[----------] 1 test from MdocAnoncredDemo (9861 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (9861 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   9.89 sec
+----------------------------------------------------------
+Test Passed.
+"MdocAnoncredDemo.RoundTripAgeOver18" end time: Mar 09 21:12 CST
+"MdocAnoncredDemo.RoundTripAgeOver18" time elapsed: 00:00:09
+----------------------------------------------------------
+
+68/83 Testing: MdocAnoncredDemo.RoundTripTwoClaims
+68/83 Test: MdocAnoncredDemo.RoundTripTwoClaims
+Command: "/home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred/mdoc_anoncred_demo_test" "--gtest_filter=MdocAnoncredDemo.RoundTripTwoClaims" "--gtest_also_run_disabled_tests"
+Directory: /home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred
+"MdocAnoncredDemo.RoundTripTwoClaims" start time: Mar 09 21:12 CST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = MdocAnoncredDemo.RoundTripTwoClaims
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MdocAnoncredDemo
+[ RUN      ] MdocAnoncredDemo.RoundTripTwoClaims
+[INFO][+  377.495 ms] Compiled circuit: sig
+[INFO][+    0.029 ms]  depth: 22 wires: 223876 in: 3739 out:90 use:166479 ovh:57397 t:481833 cse:26852 notn:353423
+[INFO][+   49.345 ms] sig bytes: 5834530 id:2845210af05740e6e3e054762f9e35ff5fc4fb23088716e369f7cf73eb61df2d
+[INFO][+ 7528.572 ms] Compiled circuit: hash
+[INFO][+    0.026 ms]  depth: 18 wires: 3642879 in: 90022 out:4 use:3423089 ovh:219790 t:8193016 cse:7892798 notn:6621240
+[INFO][+  507.668 ms] hash bytes:104158196 id:350806f428dafce638172976db598335c9a5399776a1bd08f177e569114b1b84
+[INFO][+  961.801 ms] zstd from 104158196 --> 317315
+[INFO][+   22.387 ms] bytes len: 104158196
+[INFO][+   69.306 ms] circuit created. h[in:90022 q:17], s[in:3739 q:21]
+[INFO][+    1.774 ms] ZK Commit start
+[INFO][+   60.548 ms] ZK Commitment done
+[INFO][+    0.030 ms] ZK Commit start
+[INFO][+   31.240 ms] ZK Commitment done
+[INFO][+    0.045 ms] commit created. h[nl:17, ni:90022], s[nl:21, ni:3739] hc[b:474 r:268] sc[b:455 r:19]
+[INFO][+  343.306 ms] ZK sumcheck done
+[INFO][+    1.200 ms] ZK constraints done
+[INFO][+    3.023 ms] Prover Done: flag
+[INFO][+    0.029 ms] ZK hash proof done
+[INFO][+   74.950 ms] ZK sumcheck done
+[INFO][+    1.141 ms] ZK constraints done
+[INFO][+    6.433 ms] Prover Done: flag
+[INFO][+    0.032 ms] ZK signature proof done
+[INFO][+    5.536 ms] com:32, sc:18784, com_proof:142080 [948 el, 35376 el, 506 d in 268 rows]: 160896b
+[INFO][+    0.146 ms] com:32, sc:36032, com_proof:162956 [910 el, 2508 el, 502 d in 19 rows]: 199020b
+[INFO][+    0.016 ms] proof_len: 360012 
+[INFO][+   23.587 ms] bytes len: 104158196
+[INFO][+   67.472 ms] circuit created. h[in:90022], s[in:3739]
+[INFO][+    0.102 ms] proof params: h[nl:17, ni:90022], s[nl:21, ni:3739] hc[b:474 r:268] sc[b:455 r:19]
+[INFO][+    1.405 ms] proofs read
+[INFO][+    0.019 ms] verifier: recv commit
+[INFO][+    0.001 ms] verifier: recv commit
+[INFO][+    0.046 ms] verifier: verify
+[INFO][+  103.484 ms] verify done: ok
+[INFO][+    0.024 ms] verifier: verify
+[INFO][+   61.940 ms] verify done: ok
+[       OK ] MdocAnoncredDemo.RoundTripTwoClaims (10304 ms)
+[----------] 1 test from MdocAnoncredDemo (10304 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (10304 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =  10.34 sec
+----------------------------------------------------------
+Test Passed.
+"MdocAnoncredDemo.RoundTripTwoClaims" end time: Mar 09 21:12 CST
+"MdocAnoncredDemo.RoundTripTwoClaims" time elapsed: 00:00:10
+----------------------------------------------------------
+
+69/83 Testing: MdocAnoncredDemo.TamperedProofFails
+69/83 Test: MdocAnoncredDemo.TamperedProofFails
+Command: "/home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred/mdoc_anoncred_demo_test" "--gtest_filter=MdocAnoncredDemo.TamperedProofFails" "--gtest_also_run_disabled_tests"
+Directory: /home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred
+"MdocAnoncredDemo.TamperedProofFails" start time: Mar 09 21:12 CST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = MdocAnoncredDemo.TamperedProofFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MdocAnoncredDemo
+[ RUN      ] MdocAnoncredDemo.TamperedProofFails
+[INFO][+  361.905 ms] Compiled circuit: sig
+[INFO][+    0.022 ms]  depth: 22 wires: 223876 in: 3739 out:90 use:166479 ovh:57397 t:481833 cse:26852 notn:353423
+[INFO][+   48.534 ms] sig bytes: 5834530 id:2845210af05740e6e3e054762f9e35ff5fc4fb23088716e369f7cf73eb61df2d
+[INFO][+ 7807.591 ms] Compiled circuit: hash
+[INFO][+    0.023 ms]  depth: 18 wires: 3452075 in: 85118 out:2 use:3249805 ovh:202270 t:7757579 cse:7531950 notn:6181135
+[INFO][+  498.993 ms] hash bytes:98932952 id:58248d20ded3b19b0996e478dda6afacba794fa2b1f0802771430bc0dca7d106
+[INFO][+  886.704 ms] zstd from 98932952 --> 299152
+[INFO][+   29.908 ms] bytes len: 98932952
+[INFO][+   68.035 ms] circuit created. h[in:85118 q:17], s[in:3739 q:21]
+[INFO][+    1.682 ms] ZK Commit start
+[INFO][+   52.366 ms] ZK Commitment done
+[INFO][+    0.025 ms] ZK Commit start
+[INFO][+   29.067 ms] ZK Commitment done
+[INFO][+    0.018 ms] commit created. h[nl:17, ni:85118], s[nl:21, ni:3739] hc[b:461 r:266] sc[b:455 r:19]
+[INFO][+  360.648 ms] ZK sumcheck done
+[INFO][+    1.168 ms] ZK constraints done
+[INFO][+    3.598 ms] Prover Done: flag
+[INFO][+    0.056 ms] ZK hash proof done
+[INFO][+   77.802 ms] ZK sumcheck done
+[INFO][+    0.783 ms] ZK constraints done
+[INFO][+    4.197 ms] Prover Done: flag
+[INFO][+    0.044 ms] ZK signature proof done
+[INFO][+    4.319 ms] com:32, sc:18656, com_proof:141960 [922 el, 35112 el, 487 d in 266 rows]: 160648b
+[INFO][+    0.097 ms] com:32, sc:36032, com_proof:163532 [910 el, 2508 el, 520 d in 19 rows]: 199596b
+[INFO][+    0.009 ms] proof_len: 360340 
+[INFO][+   30.068 ms] bytes len: 98932952
+[INFO][+   68.513 ms] circuit created. h[in:85118], s[in:3739]
+[INFO][+    0.145 ms] proof params: h[nl:17, ni:85118], s[nl:21, ni:3739] hc[b:461 r:266] sc[b:455 r:19]
+[INFO][+    1.429 ms] proofs read
+[INFO][+    0.029 ms] verifier: recv commit
+[INFO][+    0.001 ms] verifier: recv commit
+[INFO][+    0.045 ms] verifier: verify
+[INFO][+   93.461 ms] verify done: merkle_check failed
+[INFO][+    0.025 ms] verifier: verify
+[INFO][+   40.257 ms] verify done: merkle_check failed
+[       OK ] MdocAnoncredDemo.TamperedProofFails (10471 ms)
+[----------] 1 test from MdocAnoncredDemo (10471 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (10471 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =  10.51 sec
+----------------------------------------------------------
+Test Passed.
+"MdocAnoncredDemo.TamperedProofFails" end time: Mar 09 21:12 CST
+"MdocAnoncredDemo.TamperedProofFails" time elapsed: 00:00:10
+----------------------------------------------------------
+
+70/83 Testing: MdocAnoncredDemo.RequestTranscriptIsFresh
+70/83 Test: MdocAnoncredDemo.RequestTranscriptIsFresh
+Command: "/home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred/mdoc_anoncred_demo_test" "--gtest_filter=MdocAnoncredDemo.RequestTranscriptIsFresh" "--gtest_also_run_disabled_tests"
+Directory: /home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred
+"MdocAnoncredDemo.RequestTranscriptIsFresh" start time: Mar 09 21:12 CST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = MdocAnoncredDemo.RequestTranscriptIsFresh
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MdocAnoncredDemo
+[ RUN      ] MdocAnoncredDemo.RequestTranscriptIsFresh
+[INFO][+  380.015 ms] Compiled circuit: sig
+[INFO][+    0.026 ms]  depth: 22 wires: 223876 in: 3739 out:90 use:166479 ovh:57397 t:481833 cse:26852 notn:353423
+[INFO][+   48.998 ms] sig bytes: 5834530 id:2845210af05740e6e3e054762f9e35ff5fc4fb23088716e369f7cf73eb61df2d
+[INFO][+ 6999.178 ms] Compiled circuit: hash
+[INFO][+    0.032 ms]  depth: 18 wires: 3452075 in: 85118 out:2 use:3249805 ovh:202270 t:7757579 cse:7531950 notn:6181135
+[INFO][+  505.554 ms] hash bytes:98932952 id:58248d20ded3b19b0996e478dda6afacba794fa2b1f0802771430bc0dca7d106
+[INFO][+  881.268 ms] zstd from 98932952 --> 299152
+[INFO][+  307.797 ms] Compiled circuit: sig
+[INFO][+    0.026 ms]  depth: 22 wires: 223876 in: 3739 out:90 use:166479 ovh:57397 t:481833 cse:26852 notn:353423
+[INFO][+   44.848 ms] sig bytes: 5834530 id:2845210af05740e6e3e054762f9e35ff5fc4fb23088716e369f7cf73eb61df2d
+[INFO][+ 6311.184 ms] Compiled circuit: hash
+[INFO][+    0.031 ms]  depth: 18 wires: 3452075 in: 85118 out:2 use:3249805 ovh:202270 t:7757579 cse:7531950 notn:6181135
+[INFO][+  481.549 ms] hash bytes:98932952 id:58248d20ded3b19b0996e478dda6afacba794fa2b1f0802771430bc0dca7d106
+[INFO][+  870.692 ms] zstd from 98932952 --> 299152
+[       OK ] MdocAnoncredDemo.RequestTranscriptIsFresh (16836 ms)
+[----------] 1 test from MdocAnoncredDemo (16836 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (16836 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =  16.87 sec
+----------------------------------------------------------
+Test Passed.
+"MdocAnoncredDemo.RequestTranscriptIsFresh" end time: Mar 09 21:12 CST
+"MdocAnoncredDemo.RequestTranscriptIsFresh" time elapsed: 00:00:16
+----------------------------------------------------------
+
+71/83 Testing: MdocAnoncredDemo.PresentationCannotBeReplayedAcrossRequests
+71/83 Test: MdocAnoncredDemo.PresentationCannotBeReplayedAcrossRequests
+Command: "/home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred/mdoc_anoncred_demo_test" "--gtest_filter=MdocAnoncredDemo.PresentationCannotBeReplayedAcrossRequests" "--gtest_also_run_disabled_tests"
+Directory: /home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred
+"MdocAnoncredDemo.PresentationCannotBeReplayedAcrossRequests" start time: Mar 09 21:12 CST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = MdocAnoncredDemo.PresentationCannotBeReplayedAcrossRequests
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MdocAnoncredDemo
+[ RUN      ] MdocAnoncredDemo.PresentationCannotBeReplayedAcrossRequests
+[INFO][+  382.201 ms] Compiled circuit: sig
+[INFO][+    0.032 ms]  depth: 22 wires: 223876 in: 3739 out:90 use:166479 ovh:57397 t:481833 cse:26852 notn:353423
+[INFO][+   50.224 ms] sig bytes: 5834530 id:2845210af05740e6e3e054762f9e35ff5fc4fb23088716e369f7cf73eb61df2d
+[INFO][+ 6686.826 ms] Compiled circuit: hash
+[INFO][+    0.021 ms]  depth: 18 wires: 3452075 in: 85118 out:2 use:3249805 ovh:202270 t:7757579 cse:7531950 notn:6181135
+[INFO][+  485.642 ms] hash bytes:98932952 id:58248d20ded3b19b0996e478dda6afacba794fa2b1f0802771430bc0dca7d106
+[INFO][+  837.038 ms] zstd from 98932952 --> 299152
+[INFO][+  286.142 ms] Compiled circuit: sig
+[INFO][+    0.042 ms]  depth: 22 wires: 223876 in: 3739 out:90 use:166479 ovh:57397 t:481833 cse:26852 notn:353423
+[INFO][+   49.139 ms] sig bytes: 5834530 id:2845210af05740e6e3e054762f9e35ff5fc4fb23088716e369f7cf73eb61df2d
+[INFO][+ 6094.997 ms] Compiled circuit: hash
+[INFO][+    0.023 ms]  depth: 18 wires: 3452075 in: 85118 out:2 use:3249805 ovh:202270 t:7757579 cse:7531950 notn:6181135
+[INFO][+  486.125 ms] hash bytes:98932952 id:58248d20ded3b19b0996e478dda6afacba794fa2b1f0802771430bc0dca7d106
+[INFO][+  831.991 ms] zstd from 98932952 --> 299152
+[INFO][+   20.660 ms] bytes len: 98932952
+[INFO][+   62.436 ms] circuit created. h[in:85118 q:17], s[in:3739 q:21]
+[INFO][+    1.619 ms] ZK Commit start
+[INFO][+   46.376 ms] ZK Commitment done
+[INFO][+    0.019 ms] ZK Commit start
+[INFO][+   28.455 ms] ZK Commitment done
+[INFO][+    0.019 ms] commit created. h[nl:17, ni:85118], s[nl:21, ni:3739] hc[b:461 r:266] sc[b:455 r:19]
+[INFO][+  335.054 ms] ZK sumcheck done
+[INFO][+    1.334 ms] ZK constraints done
+[INFO][+    3.284 ms] Prover Done: flag
+[INFO][+    0.039 ms] ZK hash proof done
+[INFO][+   74.942 ms] ZK sumcheck done
+[INFO][+    0.700 ms] ZK constraints done
+[INFO][+    3.931 ms] Prover Done: flag
+[INFO][+    0.025 ms] ZK signature proof done
+[INFO][+    4.118 ms] com:32, sc:18656, com_proof:143304 [922 el, 35112 el, 529 d in 266 rows]: 161992b
+[INFO][+    0.115 ms] com:32, sc:36032, com_proof:162860 [910 el, 2508 el, 499 d in 19 rows]: 198924b
+[INFO][+    0.009 ms] proof_len: 361012 
+[INFO][+   19.133 ms] bytes len: 98932952
+[INFO][+   65.477 ms] circuit created. h[in:85118], s[in:3739]
+[INFO][+    0.092 ms] proof params: h[nl:17, ni:85118], s[nl:21, ni:3739] hc[b:461 r:266] sc[b:455 r:19]
+[INFO][+    1.299 ms] proofs read
+[INFO][+    0.019 ms] verifier: recv commit
+[INFO][+    0.000 ms] verifier: recv commit
+[INFO][+    0.043 ms] verifier: verify
+[INFO][+   89.546 ms] verify done: merkle_check failed
+[INFO][+    0.038 ms] verifier: verify
+[INFO][+   40.647 ms] verify done: merkle_check failed
+[       OK ] MdocAnoncredDemo.PresentationCannotBeReplayedAcrossRequests (16989 ms)
+[----------] 1 test from MdocAnoncredDemo (16989 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (16989 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =  17.03 sec
+----------------------------------------------------------
+Test Passed.
+"MdocAnoncredDemo.PresentationCannotBeReplayedAcrossRequests" end time: Mar 09 21:13 CST
+"MdocAnoncredDemo.PresentationCannotBeReplayedAcrossRequests" time elapsed: 00:00:17
+----------------------------------------------------------
+
+72/83 Testing: MdocAnoncredDemo.CborTaggedDateEncoding
+72/83 Test: MdocAnoncredDemo.CborTaggedDateEncoding
+Command: "/home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred/mdoc_anoncred_demo_test" "--gtest_filter=MdocAnoncredDemo.CborTaggedDateEncoding" "--gtest_also_run_disabled_tests"
+Directory: /home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred
+"MdocAnoncredDemo.CborTaggedDateEncoding" start time: Mar 09 21:13 CST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = MdocAnoncredDemo.CborTaggedDateEncoding
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MdocAnoncredDemo
+[ RUN      ] MdocAnoncredDemo.CborTaggedDateEncoding
+[       OK ] MdocAnoncredDemo.CborTaggedDateEncoding (0 ms)
+[----------] 1 test from MdocAnoncredDemo (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"MdocAnoncredDemo.CborTaggedDateEncoding" end time: Mar 09 21:13 CST
+"MdocAnoncredDemo.CborTaggedDateEncoding" time elapsed: 00:00:00
+----------------------------------------------------------
+
+73/83 Testing: MdocAnoncredDemo.CustomIssuedMdocParses
+73/83 Test: MdocAnoncredDemo.CustomIssuedMdocParses
+Command: "/home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred/mdoc_anoncred_demo_test" "--gtest_filter=MdocAnoncredDemo.CustomIssuedMdocParses" "--gtest_also_run_disabled_tests"
+Directory: /home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred
+"MdocAnoncredDemo.CustomIssuedMdocParses" start time: Mar 09 21:13 CST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = MdocAnoncredDemo.CustomIssuedMdocParses
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MdocAnoncredDemo
+[ RUN      ] MdocAnoncredDemo.CustomIssuedMdocParses
+[       OK ] MdocAnoncredDemo.CustomIssuedMdocParses (1 ms)
+[----------] 1 test from MdocAnoncredDemo (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"MdocAnoncredDemo.CustomIssuedMdocParses" end time: Mar 09 21:13 CST
+"MdocAnoncredDemo.CustomIssuedMdocParses" time elapsed: 00:00:00
+----------------------------------------------------------
+
+74/83 Testing: MdocAnoncredDemo.CustomIssueRoundTrip
+74/83 Test: MdocAnoncredDemo.CustomIssueRoundTrip
+Command: "/home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred/mdoc_anoncred_demo_test" "--gtest_filter=MdocAnoncredDemo.CustomIssueRoundTrip" "--gtest_also_run_disabled_tests"
+Directory: /home/cat/longfellow-zk/build-demo-cli/examples/mdoc_anoncred
+"MdocAnoncredDemo.CustomIssueRoundTrip" start time: Mar 09 21:13 CST
+Output:
+----------------------------------------------------------
+Note: Google Test filter = MdocAnoncredDemo.CustomIssueRoundTrip
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MdocAnoncredDemo
+[ RUN      ] MdocAnoncredDemo.CustomIssueRoundTrip
+[INFO][+  362.470 ms] Compiled circuit: sig
+[INFO][+    0.037 ms]  depth: 22 wires: 223876 in: 3739 out:90 use:166479 ovh:57397 t:481833 cse:26852 notn:353423
+[INFO][+   48.182 ms] sig bytes: 5834530 id:2845210af05740e6e3e054762f9e35ff5fc4fb23088716e369f7cf73eb61df2d
+[INFO][+ 6883.761 ms] Compiled circuit: hash
+[INFO][+    0.028 ms]  depth: 18 wires: 3642879 in: 90022 out:4 use:3423089 ovh:219790 t:8193016 cse:7892798 notn:6621240
+[INFO][+  509.453 ms] hash bytes:104158196 id:350806f428dafce638172976db598335c9a5399776a1bd08f177e569114b1b84
+[INFO][+  892.235 ms] zstd from 104158196 --> 317315
+[INFO][+   21.215 ms] bytes len: 104158196
+[INFO][+   65.174 ms] circuit created. h[in:90022 q:17], s[in:3739 q:21]
+[INFO][+    1.542 ms] ZK Commit start
+[INFO][+   54.458 ms] ZK Commitment done
+[INFO][+    0.019 ms] ZK Commit start
+[INFO][+   29.988 ms] ZK Commitment done
+[INFO][+    0.016 ms] commit created. h[nl:17, ni:90022], s[nl:21, ni:3739] hc[b:474 r:268] sc[b:455 r:19]
+[INFO][+  350.300 ms] ZK sumcheck done
+[INFO][+    1.325 ms] ZK constraints done
+[INFO][+    3.136 ms] Prover Done: flag
+[INFO][+    0.034 ms] ZK hash proof done
+[INFO][+   73.216 ms] ZK sumcheck done
+[INFO][+    0.710 ms] ZK constraints done
+[INFO][+    4.109 ms] Prover Done: flag
+[INFO][+    0.031 ms] ZK signature proof done
+[INFO][+    4.281 ms] com:32, sc:18784, com_proof:141792 [948 el, 35376 el, 497 d in 268 rows]: 160608b
+[INFO][+    0.131 ms] com:32, sc:36032, com_proof:162700 [910 el, 2508 el, 494 d in 19 rows]: 198764b
+[INFO][+    0.019 ms] proof_len: 359468 
+[INFO][+   19.242 ms] bytes len: 104158196
+[INFO][+   65.845 ms] circuit created. h[in:90022], s[in:3739]
+[INFO][+    0.110 ms] proof params: h[nl:17, ni:90022], s[nl:21, ni:3739] hc[b:474 r:268] sc[b:455 r:19]
+[INFO][+    1.326 ms] proofs read
+[INFO][+    0.020 ms] verifier: recv commit
+[INFO][+    0.001 ms] verifier: recv commit
+[INFO][+    0.040 ms] verifier: verify
+[INFO][+   97.710 ms] verify done: ok
+[INFO][+    0.031 ms] verifier: verify
+[INFO][+   63.006 ms] verify done: ok
+[       OK ] MdocAnoncredDemo.CustomIssueRoundTrip (9554 ms)
+[----------] 1 test from MdocAnoncredDemo (9554 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (9554 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   9.59 sec
+----------------------------------------------------------
+Test Passed.
+"MdocAnoncredDemo.CustomIssueRoundTrip" end time: Mar 09 21:13 CST
+"MdocAnoncredDemo.CustomIssueRoundTrip" time elapsed: 00:00:09
+----------------------------------------------------------
+
+End testing: Mar 09 21:13 CST

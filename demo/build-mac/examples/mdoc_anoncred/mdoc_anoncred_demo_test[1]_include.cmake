@@ -1,0 +1,5 @@
+if(EXISTS "/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/examples/mdoc_anoncred/mdoc_anoncred_demo_test[1]_tests.cmake")
+  include("/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/examples/mdoc_anoncred/mdoc_anoncred_demo_test[1]_tests.cmake")
+else()
+  add_test(mdoc_anoncred_demo_test_NOT_BUILT mdoc_anoncred_demo_test_NOT_BUILT)
+endif()

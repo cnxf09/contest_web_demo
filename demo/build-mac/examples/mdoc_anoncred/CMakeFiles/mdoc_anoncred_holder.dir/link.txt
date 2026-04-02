@@ -1,0 +1,1 @@
+/usr/bin/clang++ -O3 -DNDEBUG -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/mdoc_anoncred_holder.dir/holder/main.cc.o -o mdoc_anoncred_holder   -L/opt/homebrew/lib  -Wl,-rpath,/opt/homebrew/lib libmdoc_anoncred_demo_lib.a ../../circuits/mdoc/libmdoc.a -lcrypto -lzstd

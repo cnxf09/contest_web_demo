@@ -1,0 +1,5 @@
+if(EXISTS "/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/algebra/reed_solomon_test[1]_tests.cmake")
+  include("/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/algebra/reed_solomon_test[1]_tests.cmake")
+else()
+  add_test(reed_solomon_test_NOT_BUILT reed_solomon_test_NOT_BUILT)
+endif()

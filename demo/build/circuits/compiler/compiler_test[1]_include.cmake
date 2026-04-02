@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build/circuits/compiler/compiler_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build/circuits/compiler/compiler_test[1]_tests.cmake")
+else()
+  add_test(compiler_test_NOT_BUILT compiler_test_NOT_BUILT)
+endif()

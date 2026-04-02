@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/clang-build-release/util/ceildiv_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/clang-build-release/util/ceildiv_test[1]_tests.cmake")
+else()
+  add_test(ceildiv_test_NOT_BUILT ceildiv_test_NOT_BUILT)
+endif()

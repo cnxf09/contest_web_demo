@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build/merkle/merkle_tree_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build/merkle/merkle_tree_test[1]_tests.cmake")
+else()
+  add_test(merkle_tree_test_NOT_BUILT merkle_tree_test_NOT_BUILT)
+endif()

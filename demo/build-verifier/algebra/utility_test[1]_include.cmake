@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-verifier/algebra/utility_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-verifier/algebra/utility_test[1]_tests.cmake")
+else()
+  add_test(utility_test_NOT_BUILT utility_test_NOT_BUILT)
+endif()

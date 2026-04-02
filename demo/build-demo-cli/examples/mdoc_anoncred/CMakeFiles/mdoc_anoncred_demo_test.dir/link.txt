@@ -1,0 +1,1 @@
+/usr/bin/clang++ -O3 -DNDEBUG CMakeFiles/mdoc_anoncred_demo_test.dir/demo_test.cc.o -o mdoc_anoncred_demo_test  libmdoc_anoncred_demo_lib.a ../../testing/libtesting_main.a -lgtest -lpthread /usr/lib/x86_64-linux-gnu/libbenchmark.so.1.8.3 ../../circuits/mdoc/libmdoc.a -lcrypto -lzstd 

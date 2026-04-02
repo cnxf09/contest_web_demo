@@ -1,0 +1,5 @@
+if(EXISTS "/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/circuits/mac/mac_circuit_test[1]_tests.cmake")
+  include("/Users/cnxf/信安赛/BaisWork/longfellow-zk/build-mac/circuits/mac/mac_circuit_test[1]_tests.cmake")
+else()
+  add_test(mac_circuit_test_NOT_BUILT mac_circuit_test_NOT_BUILT)
+endif()

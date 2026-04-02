@@ -1,0 +1,21 @@
+# CMake generated Testfile for 
+# Source directory: /home/cat/longfellow-zk/lib/algebra
+# Build directory: /home/cat/longfellow-zk/build-demo-cli/algebra
+# 
+# This file includes the relevant testing commands required for 
+# testing this directory and lists subdirectories to be tested as well.
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/crt_test[1]_include.cmake")
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/interpolation_test[1]_include.cmake")
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/poly_test[1]_include.cmake")
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/fft_interpolation_test[1]_include.cmake")
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/limb_test[1]_include.cmake")
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/reed_solomon_test[1]_include.cmake")
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/fft_test[1]_include.cmake")
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/nat_test[1]_include.cmake")
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/rfft_test[1]_include.cmake")
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/fp2_test[1]_include.cmake")
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/nussbaumerfp2_test[1]_include.cmake")
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/sysdep_test[1]_include.cmake")
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/fp_test[1]_include.cmake")
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/nussbaumer_test[1]_include.cmake")
+include("/home/cat/longfellow-zk/build-demo-cli/algebra/utility_test[1]_include.cmake")

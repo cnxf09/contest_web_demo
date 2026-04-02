@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-bringup/circuits/tests/sha3/sha3_reference_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-bringup/circuits/tests/sha3/sha3_reference_test[1]_tests.cmake")
+else()
+  add_test(sha3_reference_test_NOT_BUILT sha3_reference_test_NOT_BUILT)
+endif()

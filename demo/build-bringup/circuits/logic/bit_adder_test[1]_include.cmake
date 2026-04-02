@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-bringup/circuits/logic/bit_adder_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-bringup/circuits/logic/bit_adder_test[1]_tests.cmake")
+else()
+  add_test(bit_adder_test_NOT_BUILT bit_adder_test_NOT_BUILT)
+endif()

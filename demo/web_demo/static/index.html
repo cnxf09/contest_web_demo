@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZK-AgentAuth · 零知识委托凭证系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ══ TOKENS ══════════════════════════════════════════════════════════════ */
+:root {
+  --bg:           #f1f5f9;
+  --surface:      #ffffff;
+  --surface-2:    #f8fafc;
+  --border:       #e2e8f0;
+  --border-focus: #2563eb;
+  --blue:         #2563eb;
+  --blue-dark:    #1d4ed8;
+  --blue-light:   #eff6ff;
+  --blue-mid:     #bfdbfe;
+  --text:         #0f172a;
+  --text-mid:     #475569;
+  --text-dim:     #94a3b8;
+  --green:        #16a34a;
+  --green-light:  #f0fdf4;
+  --green-border: #bbf7d0;
+  --red:          #dc2626;
+  --red-light:    #fef2f2;
+  --red-border:   #fecaca;
+  --mono:         'JetBrains Mono', 'Courier New', monospace;
+  --sans:         'Inter', 'Noto Sans SC', sans-serif;
+  --r:            10px;
+  --r-sm:         6px;
+  --shadow-sm:    0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-lg:    0 8px 24px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* ══ RESET ═══════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ══ LAYOUT ══════════════════════════════════════════════════════════════ */
+.page-wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 16px 64px;
+}
+
+.container {
+  width: 100%;
+  max-width: 620px;
+}
+
+/* ══ HEADER ══════════════════════════════════════════════════════════════ */
+.site-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 40px;
+}
+
+.logo-mark {
+  width: 38px; height: 38px;
+  background: var(--blue);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-mark svg { display: block; }
+
+.logo-text-group {}
+
+.logo-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.logo-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+/* ══ STEP INDICATOR ══════════════════════════════════════════════════════ */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.step-node {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.step-circle {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.step-node.active .step-circle {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
+}
+
+.step-node.done .step-circle {
+  border-color: var(--green);
+  background: var(--green-light);
+  color: var(--green);
+}
+
+.step-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-dim);
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.step-node.active .step-label { color: var(--text); }
+.step-node.done .step-label   { color: var(--text-mid); }
+
+.step-connector {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  margin: 0 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.step-connector.done::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--green);
+  animation: lineFlow 0.5s ease forwards;
+}
+
+@keyframes lineFlow {
+  from { transform: scaleX(0); transform-origin: left; }
+  to   { transform: scaleX(1); transform-origin: left; }
+}
+
+/* ══ CARDS ═══════════════════════════════════════════════════════════════ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.card-icon {
+  width: 32px; height: 32px;
+  border-radius: 7px;
+  background: var(--blue-light);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-icon svg { display: block; }
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.card-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  margin-top: 2px;
+  padding-left: 42px;
+}
+
+/* ══ FORM ════════════════════════════════════════════════════════════════ */
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-mid);
+  margin-bottom: 6px;
+}
+
+.field input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.field input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+.field input::placeholder { color: var(--text-dim); }
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+/* ══ BUTTONS ═════════════════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--r-sm);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+  letter-spacing: 0;
+}
+
+.btn:active { transform: scale(0.98); }
+
+.btn-primary {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(37,99,235,0.3);
+}
+
+.btn-primary:hover { background: var(--blue-dark); }
+
+.btn-secondary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-mid);
+}
+
+.btn-secondary:hover { background: var(--surface-2); color: var(--text); }
+
+.btn-block  { width: 100%; }
+.btn-sm     { padding: 7px 14px; font-size: 13px; }
+
+.btn[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══ CREDENTIAL DOC ══════════════════════════════════════════════════════ */
+.cred-doc {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--blue);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  margin: 18px 0 20px;
+  overflow: hidden;
+}
+
+.cred-doc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.cred-doc-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 3px;
+}
+
+.cred-doc-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+
+.cred-doc-meta {
+  text-align: right;
+}
+
+.cred-doc-doctype {
+  font-size: 11px;
+  color: var(--text-mid);
+  font-family: var(--mono);
+}
+
+.cred-doc-date {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  margin-top: 2px;
+}
+
+.cred-claims-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cred-claims-table tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.cred-claims-table tr:last-child {
+  border-bottom: none;
+}
+
+.cred-claim-label {
+  font-size: 12px;
+  color: var(--text-dim);
+  padding: 10px 16px;
+  width: 38%;
+  vertical-align: middle;
+}
+
+.cred-claim-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  padding: 10px 16px 10px 0;
+  vertical-align: middle;
+}
+
+.cred-doc-footer {
+  padding: 10px 16px;
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cred-doc-pk {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.cred-doc-verified {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--green);
+}
+
+/* ══ SECTION LABEL ═══════════════════════════════════════════════════════ */
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-mid);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ══ CHECKBOXES ══════════════════════════════════════════════════════════ */
+.claims-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.claim-check {
+  position: relative;
+}
+
+.claim-check input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0; height: 0;
+}
+
+.claim-check label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.claim-check label:hover {
+  border-color: var(--blue-mid);
+  background: var(--blue-light);
+}
+
+.claim-check input:checked + label {
+  border-color: var(--blue);
+  background: var(--blue-light);
+}
+
+.check-box {
+  width: 17px; height: 17px;
+  border-radius: 4px;
+  border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  background: var(--surface);
+}
+
+.claim-check input:checked + label .check-box {
+  background: var(--blue);
+  border-color: var(--blue);
+}
+
+.check-box svg { display: none; }
+.claim-check input:checked + label .check-box svg { display: block; }
+
+.check-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ══ DELEGATION TOKEN ════════════════════════════════════════════════════ */
+.token-doc {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--blue);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  margin: 18px 0 20px;
+  overflow: hidden;
+}
+
+.token-doc-header {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.token-doc-badge {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: var(--blue-light);
+  border: 1px solid var(--blue-mid);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.token-doc-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 2px;
+}
+
+.token-doc-agent {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.token-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.token-meta-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.token-meta-item:nth-child(even) {
+  border-right: none;
+}
+
+.token-meta-item:nth-last-child(-n+2) {
+  border-bottom: none;
+}
+
+.token-meta-key {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.token-meta-val {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.claim-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.claim-tag {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 9px;
+  border-radius: 20px;
+  background: var(--blue-light);
+  border: 1px solid var(--blue-mid);
+  color: var(--blue-dark);
+}
+
+/* ══ ACCORDION SECTIONS ══════════════════════════════════════════════════ */
+.accord-list {
+  border-top: 1px solid var(--border);
+}
+
+.accord-item {
+  border-bottom: 1px solid var(--border);
+}
+
+.accord-item:last-child {
+  border-bottom: none;
+}
+
+.accord-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--sans);
+  transition: background 0.15s;
+}
+
+.accord-trigger:hover { background: var(--surface-2); }
+
+.accord-trigger-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-mid);
+  letter-spacing: 0.3px;
+  flex: 1;
+}
+
+.accord-arrow {
+  transition: transform 0.2s ease;
+  color: var(--text-dim);
+}
+
+.accord-item.open .accord-arrow {
+  transform: rotate(90deg);
+}
+
+.accord-body {
+  display: none;
+  padding: 0 16px 14px;
+  background: var(--surface-2);
+}
+
+.accord-item.open .accord-body {
+  display: block;
+}
+
+.code-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--text-mid);
+  word-break: break-all;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.code-block::-webkit-scrollbar { width: 4px; }
+.code-block::-webkit-scrollbar-track { background: transparent; }
+.code-block::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.code-key { color: var(--blue); }
+.code-sep { color: var(--text-dim); }
+
+/* ══ ALERTS ══════════════════════════════════════════════════════════════ */
+.error-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  background: var(--red-light);
+  border: 1px solid var(--red-border);
+  border-radius: var(--r-sm);
+  color: var(--red);
+  font-size: 13px;
+  margin-bottom: 16px;
+  animation: slideIn 0.25s ease;
+}
+
+.error-banner button {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--red);
+  opacity: 0.6;
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.error-banner button:hover { opacity: 1; }
+
+.success-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 0;
+  padding: 10px 14px;
+  background: var(--green-light);
+  border: 1px solid var(--green-border);
+  border-radius: var(--r-sm);
+  margin-bottom: 4px;
+}
+
+/* ══ DIVIDER ══════════════════════════════════════════════════════════════ */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ══ ANIMATIONS ══════════════════════════════════════════════════════════ */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in { animation: fadeUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.step-section { animation: fadeUp 0.3s ease both; }
+.hidden { display: none !important; }
+
+/* ══ FOOTER ══════════════════════════════════════════════════════════════ */
+.page-footer {
+  margin-top: 48px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+
+/* ══ VERIFICATION RESULT ═════════════════════════════════════════════════ */
+.result-accept {
+  background: var(--green-light);
+  border: 1px solid var(--green-border);
+  color: var(--green);
+  font-weight: 600;
+  padding: 14px 16px;
+  border-radius: var(--r-sm);
+  font-size: 15px;
+  text-align: center;
+}
+
+.result-reject {
+  background: var(--red-light);
+  border: 1px solid var(--red-border);
+  color: var(--red);
+  font-weight: 600;
+  padding: 14px 16px;
+  border-radius: var(--r-sm);
+  font-size: 15px;
+  text-align: center;
+}
+
+/* ══ RESPONSIVE ══════════════════════════════════════════════════════════ */
+@media (max-width: 500px) {
+  .claims-grid { grid-template-columns: 1fr; }
+  .token-meta-grid { grid-template-columns: 1fr; }
+  .token-meta-item { border-right: none; }
+  .token-meta-item:nth-last-child(-n+2) { border-bottom: 1px solid var(--border); }
+  .token-meta-item:last-child { border-bottom: none; }
+  .card { padding: 18px 16px; }
+  .step-connector { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="logo-mark">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M10 2L3 5V10C3 13.9 6.1 17.6 10 18.5C13.9 17.6 17 13.9 17 10V5L10 2Z" fill="white" opacity="0.9"/>
+        <path d="M7.5 10L9 11.5L12.5 8" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="logo-text-group">
+      <div class="logo-title">ZK-AgentAuth</div>
+      <div class="logo-sub">零知识 AI Agent 委托凭证系统</div>
+    </div>
+  </header>
+
+  <!-- STEP INDICATOR -->
+  <div class="step-indicator">
+    <div class="step-node active" id="node-1">
+      <div class="step-circle" id="circle-1">1</div>
+      <div class="step-label">颁发凭证</div>
+    </div>
+    <div class="step-connector" id="connector-1"></div>
+    <div class="step-node" id="node-2">
+      <div class="step-circle" id="circle-2">2</div>
+      <div class="step-label">委托授权</div>
+    </div>
+    <div class="step-connector" id="connector-2"></div>
+    <div class="step-node" id="node-3">
+      <div class="step-circle" id="circle-3">3</div>
+      <div class="step-label">代理出示</div>
+    </div>
+    <div class="step-connector" id="connector-3"></div>
+    <div class="step-node" id="node-4">
+      <div class="step-circle" id="circle-4">4</div>
+      <div class="step-label">验证结果</div>
+    </div>
+  </div>
+
+  <!-- ERROR BANNER -->
+  <div id="error-banner" class="error-banner hidden">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px">
+      <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M8 5V8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="8" cy="11" r="0.75" fill="currentColor"/>
+    </svg>
+    <span id="error-text"></span>
+    <button onclick="hideError()">&#x2715;</button>
+  </div>
+
+  <!-- ══════════════════ STEP 1 ══════════════════ -->
+  <div id="step1" class="step-section">
+
+    <!-- Issue Form Card -->
+    <div class="card" id="issue-form-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="3" width="12" height="10" rx="2" stroke="#2563eb" stroke-width="1.5"/>
+            <path d="M5 7H11M5 10H8.5" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="card-title">数字身份颁发机构</div>
+      </div>
+      <div class="card-sub">ISO 18013-5 mDL · Digital Credential Issuer</div>
+
+      <form id="issue-form" onsubmit="submitIssue(event)">
+        <div class="field">
+          <label>持有人姓名</label>
+          <input type="text" id="f-name" placeholder="张三 / Alice" value="张三" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>出生日期</label>
+          <input type="date" id="f-birth" value="1998-03-15">
+        </div>
+        <div class="field">
+          <label>身高（cm）</label>
+          <input type="number" id="f-height" placeholder="175" value="175" min="100" max="250">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="issue-btn">
+          <span id="issue-btn-text">颁发凭证</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7H12M7.5 2.5L12 7L7.5 11.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+
+    <!-- Credential Result -->
+    <div class="card hidden animate-in" id="cred-result-card">
+      <div class="success-row">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M4.5 7.5L6.5 9.5L10.5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        凭证颁发成功
+        <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text-dim)" id="cred-issuer-key"></span>
+      </div>
+
+      <!-- Credential Document -->
+      <div class="cred-doc" id="cred-doc">
+        <div class="cred-doc-header">
+          <div>
+            <div class="cred-doc-label">Digital Identity Document</div>
+            <div class="cred-doc-name" id="cred-name">—</div>
+          </div>
+          <div class="cred-doc-meta">
+            <div class="cred-doc-doctype" id="cred-doctype">—</div>
+            <div class="cred-doc-date" id="cred-issued-at">—</div>
+          </div>
+        </div>
+        <table class="cred-claims-table" id="id-claims-container">
+          <!-- populated by JS -->
+        </table>
+        <div class="cred-doc-footer">
+          <div class="cred-doc-pk" id="cred-pk-hash">ISSUER PK: —</div>
+          <div class="cred-doc-verified">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M6 1L1.5 3V6C1.5 8.5 3.8 10.8 6 11.4C8.2 10.8 10.5 8.5 10.5 6V3L6 1Z" fill="currentColor" opacity="0.15"/>
+              <path d="M6 1L1.5 3V6C1.5 8.5 3.8 10.8 6 11.4C8.2 10.8 10.5 8.5 10.5 6V3L6 1Z" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M4 6L5.2 7.2L8 4.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            已验证
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-block" onclick="goToStep2()">
+        进行委托授权
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 7H12M7.5 2.5L12 7L7.5 11.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+  </div><!-- /step1 -->
+
+  <!-- ══════════════════ STEP 2 ══════════════════ -->
+  <div id="step2" class="step-section hidden">
+
+    <!-- Delegate Form Card -->
+    <div class="card" id="delegate-form-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2C6.4 2 5 3.1 5 4.5C5 5.9 6.4 7 8 7C9.6 7 11 5.9 11 4.5C11 3.1 9.6 2 8 2Z" stroke="#2563eb" stroke-width="1.5"/>
+            <path d="M8 9C5.2 9 3 10.3 3 12V14H13V12C13 10.3 10.8 9 8 9Z" stroke="#2563eb" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M12 6L13.5 7.5L16 5" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="card-title">委托授权生成</div>
+      </div>
+      <div class="card-sub">Delegation Policy Generator · P256 ECDSA</div>
+
+      <div class="section-label">选择委托属性</div>
+      <div class="claims-grid" id="claims-checkboxes">
+        <!-- populated by JS -->
+      </div>
+
+      <div class="field">
+        <label>Agent 名称</label>
+        <input type="text" id="f-agent-id" value="bookstore-agent" placeholder="bookstore-agent" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>委托有效期至</label>
+        <input type="date" id="f-expires" value="">
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn btn-secondary btn-sm" onclick="goToStep1()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M10 6H2M5.5 2.5L2 6L5.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          返回
+        </button>
+        <button type="button" class="btn btn-primary" style="flex:1" id="delegate-btn" onclick="submitDelegate()">
+          <span id="delegate-btn-text">生成委托凭证</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7H12M7.5 2.5L12 7L7.5 11.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Delegation Token Result -->
+    <div class="card hidden animate-in" id="token-result-card">
+      <div class="success-row">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M4.5 7.5L6.5 9.5L10.5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        委托凭证已生成
+        <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text-dim)">σ_del</span>
+      </div>
+
+      <div class="token-doc">
+        <div class="token-doc-header">
+          <div class="token-doc-badge">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <rect x="2" y="4" width="14" height="11" rx="2" stroke="#2563eb" stroke-width="1.5"/>
+              <path d="M6 8H12M6 11H9" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M6 2L9 4L12 2" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="token-doc-label">Delegation Token · ZK-AgentAuth</div>
+            <div class="token-doc-agent" id="tok-agent-id">—</div>
+          </div>
+        </div>
+
+        <div class="token-meta-grid">
+          <div class="token-meta-item">
+            <div class="token-meta-key">授权范围</div>
+            <div class="token-meta-val">
+              <div class="claim-tags" id="tok-claims"></div>
+            </div>
+          </div>
+          <div class="token-meta-item">
+            <div class="token-meta-key">有效期至</div>
+            <div class="token-meta-val" id="tok-expires">—</div>
+          </div>
+          <div class="token-meta-item">
+            <div class="token-meta-key">颁发时间</div>
+            <div class="token-meta-val" id="tok-created">—</div>
+          </div>
+          <div class="token-meta-item">
+            <div class="token-meta-key">Agent 公钥 (pkx)</div>
+            <div class="token-meta-val" style="font-family:var(--mono);font-size:11px;color:var(--text-mid)" id="tok-pkx">—</div>
+          </div>
+        </div>
+
+        <div class="accord-list" id="accord-container">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-block" onclick="goToStep3()">
+        进行代理出示
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 7H12M7.5 2.5L12 7L7.5 11.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+  </div><!-- /step2 -->
+
+  <!-- ══════════════════ STEP 3 ══════════════════ -->
+  <div id="step3" class="step-section hidden">
+
+    <div class="card" id="present-form-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2L2 5V8.5C2 12 4.7 14.8 8 15.5C11.3 14.8 14 12 14 8.5V5L8 2Z" stroke="#2563eb" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M5.5 8L7 9.5L10.5 6" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="card-title">Agent 代理出示</div>
+      </div>
+      <div class="card-sub">Zero-Knowledge Proof Generation · Ligero-v2</div>
+
+      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:18px">
+        <div style="font-size:12px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">委托摘要</div>
+        <div style="font-size:14px;margin-bottom:4px"><span style="color:var(--text-dim)">Agent:</span> <strong id="s3-agent-id">—</strong></div>
+        <div style="font-size:14px;margin-bottom:4px"><span style="color:var(--text-dim)">授权属性:</span> <span id="s3-claims">—</span></div>
+        <div style="font-size:14px"><span style="color:var(--text-dim)">有效期至:</span> <span id="s3-expires">—</span></div>
+      </div>
+
+      <p style="font-size:13px;color:var(--text-mid);margin-bottom:16px">
+        Agent 将使用委托凭证和 ZK 电路生成零知识证明，向验证者证明持有人的属性，同时不泄露持有人身份。
+      </p>
+
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm" onclick="goToStep2()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M10 6H2M5.5 2.5L2 6L5.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          返回
+        </button>
+        <button class="btn btn-primary" style="flex:1" id="present-btn" onclick="submitPresent()">
+          <span id="present-btn-text">生成零知识证明</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7H12M7.5 2.5L12 7L7.5 11.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="card hidden animate-in" id="present-result-card">
+      <div class="success-row">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M4.5 7.5L6.5 9.5L10.5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        零知识证明已生成
+      </div>
+
+      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px;margin:12px 0 16px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-dim);margin-bottom:4px">证明大小</div>
+            <div style="font-size:16px;font-weight:600;font-family:var(--mono)" id="s3-proof-size">—</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-dim);margin-bottom:4px">证明属性</div>
+            <div class="claim-tags" id="s3-proved-claims"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-block" onclick="goToStep4()">
+        验证证明
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 7H12M7.5 2.5L12 7L7.5 11.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+  </div><!-- /step3 -->
+
+  <!-- ══════════════════ STEP 4 ══════════════════ -->
+  <div id="step4" class="step-section hidden">
+
+    <div class="card" id="verify-form-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="6.5" stroke="#2563eb" stroke-width="1.5"/>
+            <path d="M5 8L7 10L11 6" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="card-title">验证者验证</div>
+      </div>
+      <div class="card-sub">ZK Proof Verification + Delegation Check</div>
+
+      <p style="font-size:13px;color:var(--text-mid);margin-bottom:16px">
+        验证者将验证 ZK 证明的有效性（约束 1-6），并检查委托签名、策略覆盖和过期时间（约束 7-9）。
+      </p>
+
+      <button class="btn btn-primary btn-block" id="verify-btn" onclick="submitVerify()">
+        <span id="verify-btn-text">执行验证</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 7H12M7.5 2.5L12 7L7.5 11.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="card hidden animate-in" id="verify-result-card">
+      <div id="verify-result-banner"></div>
+
+      <div style="margin:12px 0 16px">
+        <table style="width:100%;border-collapse:collapse" id="verify-checks-table">
+        </table>
+      </div>
+
+      <div class="accord-list" id="verify-accord-container"></div>
+
+      <div style="margin-top:16px">
+        <button class="btn btn-secondary btn-block btn-sm" onclick="resetAll()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M1.5 6.5C1.5 3.7 3.7 1.5 6.5 1.5C8.2 1.5 9.7 2.4 10.6 3.7M11.5 6.5C11.5 9.3 9.3 11.5 6.5 11.5C4.8 11.5 3.3 10.6 2.4 9.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            <path d="M10.5 1.5V4H8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          重新开始
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /step4 -->
+
+  <div class="page-footer">ZK-AgentAuth Demo &nbsp;·&nbsp; P256 + Ligero-v2 &nbsp;·&nbsp; 信安赛 2026</div>
+
+</div><!-- /container -->
+</div><!-- /page-wrap -->
+
+<script>
+// ══════════════════════════════════════════════ STATE
+const state = {
+  step: 1,
+  sessionId: null,
+  credential: null,
+  delegation: null,
+};
+
+// ══════════════════════════════════════════════ UTILS
+function showError(msg) {
+  const b = document.getElementById('error-banner');
+  document.getElementById('error-text').textContent = msg;
+  b.classList.remove('hidden');
+  b.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function hideError() {
+  document.getElementById('error-banner').classList.add('hidden');
+}
+
+function setLoading(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  const textEl = document.getElementById(btnId + '-text');
+  btn.disabled = loading;
+  if (loading) {
+    const spinner = document.createElement('span');
+    spinner.className = 'spinner';
+    spinner.id = btnId + '-spinner';
+    btn.insertBefore(spinner, btn.firstChild);
+    if (textEl) textEl.style.opacity = '0.6';
+  } else {
+    const s = document.getElementById(btnId + '-spinner');
+    if (s) s.remove();
+    if (textEl) textEl.style.opacity = '1';
+  }
+}
+
+function animateIn(el) {
+  el.classList.remove('hidden');
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = '';
+  el.classList.add('animate-in');
+}
+
+// ══════════════════════════════════════════════ STEP NAVIGATION
+const checkSvg12 = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6L4.8 8.3L9.5 3.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function updateStepUI() {
+  for (let i = 1; i <= 4; i++) {
+    const node = document.getElementById('node-' + i);
+    const circle = document.getElementById('circle-' + i);
+    node.classList.toggle('active', state.step === i);
+    node.classList.toggle('done',   state.step > i);
+    if (state.step > i) {
+      circle.innerHTML = checkSvg12;
+    } else if (state.step <= i) {
+      circle.textContent = '' + i;
+    }
+    if (i < 4) {
+      const conn = document.getElementById('connector-' + i);
+      conn.classList.toggle('done', state.step > i);
+    }
+    const section = document.getElementById('step' + i);
+    if (section) section.classList.toggle('hidden', state.step !== i);
+  }
+}
+
+function goToStep2() {
+  state.step = 2;
+  updateStepUI();
+  buildClaimsCheckboxes();
+  setDefaultExpiry();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToStep1() {
+  state.step = 1;
+  updateStepUI();
+  document.getElementById('issue-form-card').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToStep3() {
+  state.step = 3;
+  updateStepUI();
+  document.getElementById('present-form-card').classList.remove('hidden');
+  document.getElementById('present-result-card').classList.add('hidden');
+  // populate summary
+  if (state.delegation) {
+    document.getElementById('s3-agent-id').textContent = state.delegation.agent_id || '—';
+    document.getElementById('s3-claims').textContent = (state.delegation.allowed_labels || state.delegation.allowed_claims || []).join(', ');
+    document.getElementById('s3-expires').textContent = (state.delegation.expires || '').slice(0, 10);
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToStep4() {
+  state.step = 4;
+  updateStepUI();
+  document.getElementById('verify-form-card').classList.remove('hidden');
+  document.getElementById('verify-result-card').classList.add('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setDefaultExpiry() {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() + 1);
+  document.getElementById('f-expires').value = d.toISOString().split('T')[0];
+}
+
+// ══════════════════════════════════════════════ STEP 1: ISSUE
+async function submitIssue(e) {
+  e.preventDefault();
+  hideError();
+  setLoading('issue-btn', true);
+
+  const body = {
+    name:       document.getElementById('f-name').value.trim(),
+    birth_date: document.getElementById('f-birth').value,
+    height:     parseInt(document.getElementById('f-height').value) || 175,
+  };
+
+  try {
+    const res  = await fetch('/api/issue', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await res.json();
+
+    if (data.status !== 'ok') throw new Error(data.message || '颁发失败');
+
+    state.sessionId = data.session_id;
+    state.credential = data.credential;
+
+    renderCredential(data.credential, body.name);
+
+    document.getElementById('issue-form-card').classList.add('hidden');
+    animateIn(document.getElementById('cred-result-card'));
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    setLoading('issue-btn', false);
+  }
+}
+
+function renderCredential(cred, displayName) {
+  document.getElementById('cred-name').textContent = displayName || 'Holder';
+  document.getElementById('cred-doctype').textContent = cred.doc_type || '';
+  document.getElementById('cred-issued-at').textContent = 'Issued: ' + (cred.issued_at || '').slice(0, 10);
+  document.getElementById('cred-pk-hash').textContent = 'ISSUER PK: ' + (cred.issuer_pkx_short || '');
+  document.getElementById('cred-issuer-key').textContent = cred.issuer_pkx_short || '';
+
+  const tbody = document.getElementById('id-claims-container');
+  tbody.innerHTML = '';
+  (cred.claims || []).forEach(c => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="cred-claim-label">${c.label}</td><td class="cred-claim-value">${c.value}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ══════════════════════════════════════════════ STEP 2: DELEGATE
+function buildClaimsCheckboxes() {
+  const container = document.getElementById('claims-checkboxes');
+  container.innerHTML = '';
+  const claims = state.credential?.claims || [];
+
+  claims.forEach((c, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'claim-check';
+    const id = 'ck-' + c.alias;
+    const checkSvg = `<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 5.5L4 8L9.5 2.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    wrap.innerHTML = `
+      <input type="checkbox" id="${id}" value="${c.alias}" ${i === 0 ? 'checked' : ''}>
+      <label for="${id}">
+        <div class="check-box">${i === 0 ? checkSvg : ''}</div>
+        <div class="check-label">${c.label}</div>
+      </label>`;
+
+    const input = wrap.querySelector('input');
+    const box   = wrap.querySelector('.check-box');
+    input.addEventListener('change', () => {
+      box.innerHTML = input.checked ? checkSvg : '';
+    });
+
+    container.appendChild(wrap);
+  });
+}
+
+async function submitDelegate() {
+  hideError();
+
+  const checked = [...document.querySelectorAll('#claims-checkboxes input:checked')].map(i => i.value);
+  if (checked.length === 0) { showError('请至少选择一个委托属性'); return; }
+
+  const agentId = document.getElementById('f-agent-id').value.trim() || 'agent';
+  const expiresDate = document.getElementById('f-expires').value;
+  if (!expiresDate) { showError('请设置委托有效期'); return; }
+  const expires = expiresDate + 'T00:00:00Z';
+
+  setLoading('delegate-btn', true);
+
+  const body = {
+    session_id:     state.sessionId,
+    allowed_claims: checked,
+    expires:        expires,
+    agent_id:       agentId,
+  };
+
+  try {
+    const res  = await fetch('/api/delegate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await res.json();
+
+    if (data.status !== 'ok') throw new Error(data.message || '委托失败');
+
+    state.delegation = data.delegation;
+    renderDelegation(data.delegation);
+    document.getElementById('delegate-form-card').classList.add('hidden');
+    animateIn(document.getElementById('token-result-card'));
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    setLoading('delegate-btn', false);
+  }
+}
+
+function renderDelegation(d) {
+  document.getElementById('tok-agent-id').textContent = d.agent_id || '—';
+  document.getElementById('tok-expires').textContent  = (d.expires || '').slice(0, 10);
+  document.getElementById('tok-created').textContent  = (d.created || '').replace('T',' ').slice(0,16);
+  document.getElementById('tok-pkx').textContent      = d.agent_pkx_short || '—';
+
+  const tags = document.getElementById('tok-claims');
+  tags.innerHTML = '';
+  (d.allowed_labels || d.allowed_claims || []).forEach(lbl => {
+    const t = document.createElement('span');
+    t.className = 'claim-tag';
+    t.textContent = lbl;
+    tags.appendChild(t);
+  });
+
+  const ac = document.getElementById('accord-container');
+  ac.innerHTML = '';
+
+  if (d.agent_pkx) {
+    ac.appendChild(buildAccord('Agent 公钥 (pk_ag)', 'agent_pkx', [
+      { k: 'pkx', v: d.agent_pkx },
+      { k: 'pky', v: d.agent_pky || '…' },
+    ]));
+  }
+
+  if (d.delegation_sig) {
+    ac.appendChild(buildAccord('委托签名 (σ_del)', 'del_sig', [
+      { k: 'msg', v: d.delegation_msg || '…' },
+      { k: 'sig', v: d.delegation_sig },
+    ]));
+  }
+
+  if (d.policy_json) {
+    ac.appendChild(buildAccordRaw('policy.json', 'policy', d.policy_json));
+  }
+}
+
+function buildAccord(title, id, pairs) {
+  const el = document.createElement('div');
+  el.className = 'accord-item';
+  const bodyId = 'accord-body-' + id;
+  el.innerHTML = `
+    <button class="accord-trigger" onclick="toggleAccord('${bodyId}', this.closest('.accord-item'))">
+      <svg class="accord-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M5 3L9 7L5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="accord-trigger-label">${title}</span>
+    </button>
+    <div class="accord-body" id="${bodyId}">
+      <div class="code-block">
+        ${pairs.map(p => `<div><span class="code-key">${p.k}</span><span class="code-sep"> = </span>${p.v}</div>`).join('')}
+      </div>
+    </div>`;
+  return el;
+}
+
+function buildAccordRaw(title, id, raw) {
+  const el = document.createElement('div');
+  el.className = 'accord-item';
+  const bodyId = 'accord-body-' + id;
+  const escaped = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  el.innerHTML = `
+    <button class="accord-trigger" onclick="toggleAccord('${bodyId}', this.closest('.accord-item'))">
+      <svg class="accord-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M5 3L9 7L5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="accord-trigger-label">${title}</span>
+    </button>
+    <div class="accord-body" id="${bodyId}">
+      <div class="code-block"><pre style="white-space:pre-wrap;font-family:var(--mono);font-size:11.5px">${escaped}</pre></div>
+    </div>`;
+  return el;
+}
+
+function toggleAccord(bodyId, item) {
+  item.classList.toggle('open');
+}
+
+// ══════════════════════════════════════════════ STEP 3: PRESENT
+async function submitPresent() {
+  hideError();
+  setLoading('present-btn', true);
+
+  const claims = state.delegation?.allowed_claims || [];
+  const body = {
+    session_id:       state.sessionId,
+    requested_claims: claims,
+  };
+
+  try {
+    const res  = await fetch('/api/present', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (data.status !== 'ok') throw new Error(data.message || '证明生成失败');
+
+    const p = data.presentation;
+    const sizeKB = (p.proof_size_bytes / 1024).toFixed(1);
+    document.getElementById('s3-proof-size').textContent = sizeKB + ' KB';
+
+    const tagsEl = document.getElementById('s3-proved-claims');
+    tagsEl.innerHTML = '';
+    (p.claims_labels || p.claims_proved || []).forEach(lbl => {
+      const t = document.createElement('span');
+      t.className = 'claim-tag';
+      t.textContent = lbl;
+      tagsEl.appendChild(t);
+    });
+
+    document.getElementById('present-form-card').classList.add('hidden');
+    animateIn(document.getElementById('present-result-card'));
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    setLoading('present-btn', false);
+  }
+}
+
+// ══════════════════════════════════════════════ STEP 4: VERIFY
+async function submitVerify() {
+  hideError();
+  setLoading('verify-btn', true);
+
+  const body = { session_id: state.sessionId };
+
+  try {
+    const res  = await fetch('/api/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (data.status !== 'ok') throw new Error(data.message || '验证失败');
+
+    const v = data.verification;
+    const isAccept = v.overall === 'ACCEPT';
+
+    const banner = document.getElementById('verify-result-banner');
+    if (isAccept) {
+      banner.className = 'success-row';
+      banner.innerHTML = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 7.5L6.5 9.5L10.5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> 验证通过 — ACCEPT`;
+    } else {
+      banner.className = 'error-banner';
+      banner.style.marginBottom = '0';
+      banner.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M5 5L11 11M11 5L5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> 验证失败 — REJECT`;
+    }
+
+    const checksTable = document.getElementById('verify-checks-table');
+    checksTable.innerHTML = '';
+    const labels = [
+      ['zk_proof',       '零知识证明 (约束 1-6)'],
+      ['delegation_sig', '委托签名 (约束 7)'],
+      ['policy_claims',  '策略覆盖 (约束 8)'],
+      ['policy_expiry',  '策略有效期 (约束 9)'],
+    ];
+    labels.forEach(([key, label]) => {
+      const pass = v.checks[key];
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid var(--border)';
+      tr.innerHTML = `
+        <td style="padding:10px 16px;font-size:13px;color:var(--text-mid)">${label}</td>
+        <td style="padding:10px 16px;text-align:right;font-size:13px;font-weight:600;color:${pass ? 'var(--green)' : 'var(--red)'}">${pass ? 'PASS' : 'FAIL'}</td>`;
+      checksTable.appendChild(tr);
+    });
+
+    // policy accordion
+    const ac = document.getElementById('verify-accord-container');
+    ac.innerHTML = '';
+    if (v.policy_json) {
+      ac.appendChild(buildAccordRaw('delegation_token.json', 'v_policy', v.policy_json));
+    }
+
+    document.getElementById('verify-form-card').classList.add('hidden');
+    animateIn(document.getElementById('verify-result-card'));
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    setLoading('verify-btn', false);
+  }
+}
+
+// ══════════════════════════════════════════════ RESET
+async function resetAll() {
+  if (state.sessionId) {
+    try {
+      await fetch('/api/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session_id: state.sessionId }) });
+    } catch (_) {}
+  }
+
+  state.step = 1;
+  state.sessionId = null;
+  state.credential = null;
+  state.delegation = null;
+
+  document.getElementById('cred-result-card').classList.add('hidden');
+  document.getElementById('issue-form-card').classList.remove('hidden');
+  document.getElementById('issue-form').reset();
+  document.getElementById('f-name').value = '张三';
+  document.getElementById('f-birth').value = '1998-03-15';
+  document.getElementById('f-height').value = '175';
+
+  document.getElementById('token-result-card').classList.add('hidden');
+  document.getElementById('delegate-form-card').classList.remove('hidden');
+
+  document.getElementById('present-result-card').classList.add('hidden');
+  document.getElementById('present-form-card').classList.remove('hidden');
+
+  document.getElementById('verify-result-card').classList.add('hidden');
+  document.getElementById('verify-form-card').classList.remove('hidden');
+
+  hideError();
+  updateStepUI();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════════════ INIT
+updateStepUI();
+setDefaultExpiry();
+</script>
+</body>
+</html>

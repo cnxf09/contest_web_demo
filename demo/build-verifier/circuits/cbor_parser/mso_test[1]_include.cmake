@@ -1,0 +1,5 @@
+if(EXISTS "/home/cat/longfellow-zk/build-verifier/circuits/cbor_parser/mso_test[1]_tests.cmake")
+  include("/home/cat/longfellow-zk/build-verifier/circuits/cbor_parser/mso_test[1]_tests.cmake")
+else()
+  add_test(mso_test_NOT_BUILT mso_test_NOT_BUILT)
+endif()
