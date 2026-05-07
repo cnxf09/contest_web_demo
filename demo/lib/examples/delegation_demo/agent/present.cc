@@ -6,8 +6,10 @@
 #include "examples/delegation_demo/shared/delegation_crypto.h"
 #include "examples/delegation_demo/shared/delegation_files.h"
 #include "examples/delegation_demo/shared/types.h"
+#include "examples/mdoc_anoncred/shared/crypto.h"
 #include "examples/mdoc_anoncred/shared/files.h"
 #include "examples/mdoc_anoncred/shared/mdoc_demo.h"
+#include "examples/mdoc_anoncred/shared/request_codec.h"
 #include "examples/mdoc_anoncred/shared/types.h"
 
 namespace proofs {
@@ -47,6 +49,21 @@ bool RunAgentPresentCommand(const std::filesystem::path& delegation_dir,
       return false;
     }
   }
+  std::vector<ReaderClaim> predicate_claims;
+  for (const auto& requested : request.claims) {
+    for (const auto& issued : holder.issued_claims) {
+      if (issued.alias == requested.alias) {
+        predicate_claims.push_back(issued);
+        break;
+      }
+    }
+  }
+  if (!EvaluatePolicyPredicates(policy, predicate_claims, err)) {
+    if (err != nullptr) {
+      *err = "policy predicate check failed: " + *err;
+    }
+    return false;
+  }
 
   // 5. 约束⑨：过期检查
   if (PolicyExpired(policy, request.now_iso8601)) {
@@ -57,10 +74,45 @@ bool RunAgentPresentCommand(const std::filesystem::path& delegation_dir,
     return false;
   }
 
-  // 6. 生成 ZK 证明
+  std::vector<std::string> requested_aliases;
+  requested_aliases.reserve(request.claims.size());
+  for (const auto& claim : request.claims) {
+    requested_aliases.push_back(claim.alias);
+  }
+
+  std::vector<uint8_t> allowed_hashes;
+  std::vector<uint8_t> agent_id_hash;
+  std::vector<uint8_t> requested_hashes;
+  if (!BuildDelegationCircuitInputs(policy, requested_aliases, &allowed_hashes,
+                                    &agent_id_hash, &requested_hashes, err)) {
+    return false;
+  }
+
+  std::vector<uint8_t> del_sig_bytes;
+  if (!HexToBytes(del_sig, &del_sig_bytes, err)) {
+    return false;
+  }
+
+  std::vector<uint8_t> agent_digest;
+  if (!ComputeDeviceAuthenticationDigest(request.transcript_bytes,
+                                         request.doc_type, &agent_digest,
+                                         err)) {
+    return false;
+  }
+  std::vector<uint8_t> agent_sig_bytes;
+  if (!SignSha256DigestP256(agent_sk, agent_digest, &agent_sig_bytes, err)) {
+    return false;
+  }
+  const std::string agent_sig = HexPrefixed(agent_sig_bytes.data(),
+                                           agent_sig_bytes.size());
+
+  // 6. 生成包含约束⑦-⑩的 ZK 证明
   MdocPresentation presentation;
-  if (!ProveMdocPresentation(holder, issuer_public, request, &presentation,
-                             err)) {
+  if (!ProveDelegatedMdocPresentation(
+          holder, issuer_public, request, agent_pkx, agent_pky, del_sig_bytes,
+          agent_sig_bytes, allowed_hashes, policy.allowed_claims.size(),
+          policy.expires, agent_id_hash, requested_hashes, &presentation,
+          err)) {
     return false;
   }
 
@@ -72,6 +124,7 @@ bool RunAgentPresentCommand(const std::filesystem::path& delegation_dir,
   // 8. 写出 delegation_token.json（供 Verifier 读取）
   if (!WriteDelegationTokenJson(out_dir / "delegation_token.json",
                                 agent_pkx, agent_pky, del_msg, del_sig,
+                                agent_sig,
                                 holder.device_pkx_hex, holder.device_pky_hex,
                                 policy, err)) {
     return false;

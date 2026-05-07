@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "examples/delegation_demo/shared/types.h"
+
 namespace proofs {
 
 // 执行委托命令：
@@ -21,6 +23,7 @@ namespace proofs {
 //   out_dir:         输出 delegation/ 目录
 bool RunDelegateCommand(const std::filesystem::path& holder_dir,
                         const std::vector<std::string>& allowed_claims,
+                        const std::vector<PolicyPredicate>& predicates,
                         const std::string& expires,
                         const std::string& agent_id,
                         const std::filesystem::path& out_dir,

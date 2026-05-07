@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include "examples/delegation_demo/shared/delegation_crypto.h"
 #include "examples/delegation_demo/verifier/verify.h"
 
 namespace {
@@ -13,6 +14,7 @@ void Usage() {
       << "  delegation_demo_verifier request\n"
       << "    --issuer-public <dir>   颁发方公开信息目录\n"
       << "    --claim <alias>         请求的 claim alias（可多次指定）\n"
+      << "    --predicate <c:op:v>    请求并检查的谓词，如 height:GE:170\n"
       << "    --out <dir>             输出 request/ 目录\n"
       << "\n"
       << "  delegation_demo_verifier verify\n"
@@ -59,7 +61,23 @@ int main(int argc, char* argv[]) {
   if (subcmd == "request") {
     const char* issuer_public_c = GetFlag(argc, argv, "--issuer-public");
     const char* out_c           = GetFlag(argc, argv, "--out");
-    const auto claims           = GetFlagAll(argc, argv, "--claim");
+    auto claims                 = GetFlagAll(argc, argv, "--claim");
+    for (const auto& text : GetFlagAll(argc, argv, "--predicate")) {
+      proofs::PolicyPredicate predicate;
+      std::string parse_err;
+      if (!proofs::ParsePolicyPredicate(text, &predicate, &parse_err)) {
+        std::cerr << "request failed: " << parse_err << "\n";
+        return 1;
+      }
+      bool seen = false;
+      for (const auto& claim : claims) {
+        if (claim == predicate.claim) {
+          seen = true;
+          break;
+        }
+      }
+      if (!seen) claims.push_back(predicate.claim);
+    }
 
     if (issuer_public_c == nullptr || out_c == nullptr || claims.empty()) {
       std::cerr << "error: --issuer-public, --claim, --out are required\n\n";

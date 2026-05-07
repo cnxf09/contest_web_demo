@@ -28,7 +28,7 @@ add_executable(delegation_demo_verifier verifier/main.cc)
 target_link_libraries(delegation_demo_verifier delegation_demo_lib)
 
 # 端到端测试
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/delegation_demo_test.cc)
+if(PROOFS_BUILD_TESTS AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/delegation_demo_test.cc)
   add_executable(delegation_demo_test delegation_demo_test.cc)
   target_link_libraries(delegation_demo_test delegation_demo_lib)
   proofs_add_testing_libraries(delegation_demo_test)

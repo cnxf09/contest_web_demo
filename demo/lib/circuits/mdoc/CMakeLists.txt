@@ -14,7 +14,7 @@
 
 add_library(mdoc mdoc_zk.cc mdoc_decompress.cc mdoc_generate_circuit.cc
                  mdoc_circuit_id.cc zk_spec.cc)
-target_link_libraries(mdoc flatsha ec algebra util zstd)
+target_link_libraries(mdoc flatsha ec algebra util ${PROOFS_ZSTD_LIBRARY})
 
 add_library(mdoc_static STATIC
                         mdoc_zk.cc mdoc_decompress.cc mdoc_generate_circuit.cc
@@ -25,18 +25,20 @@ add_library(mdoc_static STATIC
     $<TARGET_OBJECTS:util>
 )
 
-proofs_add_test(mdoc_signature_test)
-target_link_libraries(mdoc_signature_test mdoc)
+if(PROOFS_BUILD_TESTS)
+    proofs_add_test(mdoc_signature_test)
+    target_link_libraries(mdoc_signature_test mdoc)
 
-#proofs_add_test(zk_spec_test)
-#target_link_libraries(zk_spec_test mdoc)
+    #proofs_add_test(zk_spec_test)
+    #target_link_libraries(zk_spec_test mdoc)
 
-# link mdoc_zk_test explicitly against the static library
-# so that we know that the static library works
-add_executable(mdoc_zk_test mdoc_zk_test.cc)
-target_link_libraries(mdoc_zk_test mdoc_static)
-proofs_add_testing_libraries(mdoc_zk_test)
-target_link_libraries(mdoc_zk_test crypto zstd)
+    # link mdoc_zk_test explicitly against the static library
+    # so that we know that the static library works
+    add_executable(mdoc_zk_test mdoc_zk_test.cc)
+    target_link_libraries(mdoc_zk_test mdoc_static)
+    proofs_add_testing_libraries(mdoc_zk_test)
+    target_link_libraries(mdoc_zk_test crypto ${PROOFS_ZSTD_LIBRARY})
+endif()
 
 set(installable_libs mdoc_static)
 install(TARGETS ${installable_libs} DESTINATION lib)
@@ -46,7 +48,7 @@ find_package(absl QUIET)
 if (absl_FOUND)
     message(STATUS "ABSL found. Adding circuit_maker.")
     add_executable(circuit_maker circuit_maker.cc)
-    target_link_libraries(circuit_maker mdoc_static absl::flags absl::flags_parse absl::cleanup crypto zstd)
+    target_link_libraries(circuit_maker mdoc_static absl::flags absl::flags_parse absl::cleanup crypto ${PROOFS_ZSTD_LIBRARY})
 else()
     message(STATUS "ABSL not found. circuit_maker will not be built.")
 endif()

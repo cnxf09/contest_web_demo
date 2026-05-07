@@ -7,6 +7,7 @@
 #include "examples/delegation_demo/shared/delegation_files.h"
 #include "examples/delegation_demo/shared/types.h"
 #include "examples/mdoc_anoncred/shared/files.h"
+#include "examples/mdoc_anoncred/shared/mdoc_demo.h"
 #include "examples/mdoc_anoncred/verifier/verify.h"
 
 namespace proofs {
@@ -20,7 +21,14 @@ bool RunDelegationRequestCommand(
     const std::vector<std::string>& claim_aliases,
     const std::filesystem::path& out_dir,
     std::string* err) {
-  return RunMdocRequestCommand(issuer_public_dir, claim_aliases, out_dir, err);
+  MdocIssuerPublicBundle issuer_public;
+  ReaderRequest request;
+  if (!ReadMdocIssuerPublicDir(issuer_public_dir, &issuer_public, err) ||
+      !BuildDelegatedReaderRequest(issuer_public, claim_aliases, &request,
+                                   err)) {
+    return false;
+  }
+  return WriteReaderRequestDir(out_dir, request, err);
 }
 
 // ----------------------------------------------------------------
@@ -33,64 +41,55 @@ bool RunDelegationVerifyCommand(
     const std::filesystem::path& presentation_dir,
     DelegationVerificationResult* result,
     std::string* err) {
-  // 1. ZK 证明验证（约束①-⑥）
-  bool zk_ok = false;
-  std::string zk_err;
-  if (!RunMdocVerifyCommand(issuer_public_dir, request_dir, presentation_dir,
-                            &zk_ok, &zk_err)) {
-    if (err != nullptr) *err = "ZK verify error: " + zk_err;
+  MdocIssuerPublicBundle issuer_public;
+  ReaderRequest request;
+  MdocPresentation presentation;
+  if (!ReadMdocIssuerPublicDir(issuer_public_dir, &issuer_public, err) ||
+      !ReadReaderRequestDir(request_dir, &request, err) ||
+      !ReadMdocPresentationDir(presentation_dir, &presentation, err)) {
     return false;
   }
-  result->zk_proof_ok = zk_ok;
 
-  // 2. 读取 delegation_token.json
-  std::string agent_pkx, agent_pky, del_msg, del_sig, device_pkx, device_pky;
+  // 1. 读取 delegation_token.json
+  std::string agent_pkx, agent_pky, del_msg, del_sig, agent_sig;
+  std::string device_pkx, device_pky;
   Policy policy;
   if (!ReadDelegationTokenJson(presentation_dir / "delegation_token.json",
                                &agent_pkx, &agent_pky, &del_msg, &del_sig,
-                               &device_pkx, &device_pky, &policy, err)) {
+                               &agent_sig, &device_pkx, &device_pky, &policy,
+                               err)) {
     return false;
   }
 
-  // 3. 委托签名验证（约束⑦）
-  std::string sig_err;
-  result->delegation_sig_ok =
-      VerifyDelegationSig(device_pkx, device_pky, del_msg, del_sig, &sig_err);
-
-  // 4. 重新计算 del_msg 确保 policy 未被篡改
-  if (result->delegation_sig_ok) {
-    std::string recomputed_msg;
-    std::string compute_err;
-    if (ComputeDelegationMsg(agent_pkx, agent_pky, policy, &recomputed_msg,
-                             &compute_err)) {
-      if (recomputed_msg != del_msg) {
-        result->delegation_sig_ok = false;
-      }
-    } else {
-      result->delegation_sig_ok = false;
-    }
-  }
-
-  // 5. 策略 claim 覆盖检查（约束⑧）
-  ReaderRequest request;
-  if (!ReadReaderRequestDir(request_dir, &request, err)) {
-    return false;
-  }
-
-  result->policy_claims_ok = true;
+  std::vector<std::string> requested_aliases;
+  requested_aliases.reserve(request.claims.size());
   for (const auto& claim : request.claims) {
-    if (!PolicyAllowsClaim(policy, claim.alias)) {
-      result->policy_claims_ok = false;
-      break;
-    }
+    requested_aliases.push_back(claim.alias);
+  }
+  std::vector<uint8_t> allowed_hashes;
+  std::vector<uint8_t> agent_id_hash;
+  std::vector<uint8_t> requested_hashes;
+  if (!BuildDelegationCircuitInputs(policy, requested_aliases, &allowed_hashes,
+                                    &agent_id_hash, &requested_hashes, err)) {
+    return false;
   }
 
-  // 6. 策略过期检查（约束⑨）
-  result->policy_not_expired = !PolicyExpired(policy, request.now_iso8601);
+  const MdocVerificationResult zk_result = VerifyDelegatedMdocPresentation(
+      issuer_public, request, presentation, agent_pkx, agent_pky,
+      allowed_hashes, policy.allowed_claims.size(), policy.expires,
+      agent_id_hash, requested_hashes);
 
-  // 7. 综合结果
-  result->overall_ok = result->zk_proof_ok && result->delegation_sig_ok &&
-                       result->policy_claims_ok && result->policy_not_expired;
+  std::string predicate_err;
+  const bool predicates_ok =
+      EvaluatePolicyPredicates(policy, presentation.disclosed_claims,
+                               &predicate_err);
+
+  // 约束⑦-⑩已进入 ZK 电路；下面的布尔项用于保持 CLI 展示格式。
+  result->zk_proof_ok = zk_result.ok;
+  result->delegation_sig_ok = zk_result.ok;
+  result->policy_claims_ok = zk_result.ok && predicates_ok;
+  result->policy_not_expired = zk_result.ok;
+  result->overall_ok = zk_result.ok && predicates_ok;
 
   std::ostringstream msg;
   msg << "ZK proof: " << (result->zk_proof_ok ? "PASS" : "FAIL") << "\n";
@@ -98,6 +97,11 @@ bool RunDelegationVerifyCommand(
       << (result->delegation_sig_ok ? "PASS" : "FAIL") << "\n";
   msg << "Policy claims: "
       << (result->policy_claims_ok ? "PASS" : "FAIL") << "\n";
+  if (!predicates_ok) {
+    msg << "Policy predicates: FAIL (" << predicate_err << ")\n";
+  } else {
+    msg << "Policy predicates: PASS\n";
+  }
   msg << "Policy expiry: "
       << (result->policy_not_expired ? "PASS" : "FAIL") << "\n";
   msg << "Overall: " << (result->overall_ok ? "ACCEPT" : "REJECT");

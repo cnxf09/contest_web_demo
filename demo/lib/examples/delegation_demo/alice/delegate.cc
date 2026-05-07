@@ -46,6 +46,7 @@ std::vector<ReaderClaim> FilterClaims(const std::vector<ReaderClaim>& all_claims
 
 bool RunDelegateCommand(const std::filesystem::path& holder_dir,
                         const std::vector<std::string>& allowed_claims,
+                        const std::vector<PolicyPredicate>& predicates,
                         const std::string& expires,
                         const std::string& agent_id,
                         const std::filesystem::path& out_dir,
@@ -67,6 +68,7 @@ bool RunDelegateCommand(const std::filesystem::path& holder_dir,
   // Step 3: 构造 Policy
   Policy policy;
   policy.allowed_claims = allowed_claims;
+  policy.predicates = predicates;
   policy.expires = expires;
   policy.agent_id = agent_id;
   policy.created = CurrentTimeISO8601();

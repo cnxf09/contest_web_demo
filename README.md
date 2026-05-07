@@ -15,7 +15,7 @@ Issuer ──颁发凭证──▶ Alice ──委托──▶ Agent ──ZK证
 | Agent（代理人） | C | 验证策略，调用 ZK 证明器生成证明 |
 | Verifier（验证者） | D | 生成验证请求，验证 ZK 证明及委托合法性 |
 
-**ZK 约束**：约束①-⑥（凭证有效性）在电路内验证；约束⑦-⑨（委托签名、策略覆盖、过期检查）在应用层验证。
+**ZK 约束**：约束①-⑩ 在委托版电路内验证；约束⑪（撤销）暂不实现。当前仍使用原论文实现中的 ECDSA/P-256 与 SHA-256，后续再替换为 SM2/SM3。
 
 ---
 
@@ -113,9 +113,8 @@ cmake --build . --target \
 ```
 
 Agent 在此步骤执行：
-1. 策略检查（约束⑧）：requested claim 必须在 policy.allowed_claims 内
-2. 过期检查（约束⑨）：当前时间 < policy.expires
-3. 调用 ZK 证明器生成证明（约束①-⑥）
+1. 生成 Agent 会话签名（约束⑩）
+2. 调用委托版 ZK 证明器生成证明（约束①-⑩）
 
 输出 `run/demo/presentation/`，包含 proof.bin 和 delegation_token.json。
 
@@ -132,10 +131,10 @@ Agent 在此步骤执行：
 
 ```
 === Delegation Verification ===
-ZK proof:        PASS    # 约束①-⑥
-Delegation sig:  PASS    # 约束⑦
-Policy claims:   PASS    # 约束⑧
-Policy expiry:   PASS    # 约束⑨
+ZK proof:        PASS    # 约束①-⑩
+Delegation sig:  PASS    # 约束⑦（电路内）
+Policy claims:   PASS    # 约束⑧（电路内）
+Policy expiry:   PASS    # 约束⑨（电路内）
 Overall:         ACCEPT
 ```
 
@@ -181,7 +180,7 @@ python3 app.py
 | 二进制 | `.cbor` / `.bin` 原始字节 |
 | JSON | UTF-8，2 空格缩进，snake_case 键名 |
 
-**delegation_token.json**（Module C 输出，Module D 读入）：
+**delegation_token.json**（Module C 输出，Module D 读入；展示公开委托材料）：
 
 ```json
 {
@@ -189,6 +188,7 @@ python3 app.py
   "agent_pky": "0x...",
   "delegation_msg": "0x...",
   "delegation_sig": "0x...",
+  "agent_sig": "0x...",
   "device_pkx": "0x...",
   "device_pky": "0x...",
   "policy": {
@@ -205,7 +205,7 @@ python3 app.py
 ## 安全说明
 
 - **分层方案折衷**：当前 demo 中 Alice 将 `sk_d` 传入 `delegation/` 目录供 Agent 使用（ZK 电路需要设备签名）。完整方案中 `sk_d` 不应离开安全硬件。
-- **委托签名验证**：分层方案中 Verifier 无法验证 `σ_del`（因为 `pk_d` 对 Verifier 隐藏），此处在应用层做验证仅用于 Demo 展示完整性；完整方案中该验证应在电路内完成。
+- **委托签名验证**：当前委托版电路在 ZK 内验证 `σ_del`，通过 MAC 桥接把隐藏的设备公钥与策略摘要绑定。
 - **可撤销性**：当前版本不实现。完整方案通过 SMT（稀疏 Merkle 树）实现约束⑪。
 
 ---

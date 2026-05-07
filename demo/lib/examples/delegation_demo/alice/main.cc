@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "examples/delegation_demo/alice/delegate.h"
+#include "examples/delegation_demo/shared/delegation_crypto.h"
 
 namespace {
 
@@ -12,6 +13,7 @@ void Usage() {
             << "  delegation_demo_alice delegate\n"
             << "    --holder <dir>        Alice 的 holder/ 目录\n"
             << "    --claim  <alias>      允许的 claim alias（可多次指定）\n"
+            << "    --predicate <c:op:v>  通用谓词，如 height:GE:170，可多次指定\n"
             << "    --expires <iso8601>   委托过期时间，如 2027-01-01T00:00:00Z\n"
             << "    --agent-id <id>       Agent 标识（可选，默认 'agent'）\n"
             << "    --out <dir>           输出 delegation/ 目录\n"
@@ -62,20 +64,42 @@ int main(int argc, char* argv[]) {
     return 2;
   }
 
-  const std::vector<std::string> claims = GetFlagAll(argc, argv, "--claim");
-  if (claims.empty()) {
-    std::cerr << "error: at least one --claim is required\n\n";
-    Usage();
-    return 2;
-  }
-
   const char* agent_id_c = GetFlag(argc, argv, "--agent-id");
   const std::string agent_id = (agent_id_c != nullptr) ? agent_id_c : "agent";
 
   std::string err;
+  std::vector<std::string> claims = GetFlagAll(argc, argv, "--claim");
+  std::vector<proofs::PolicyPredicate> predicates;
+  for (const auto& text : GetFlagAll(argc, argv, "--predicate")) {
+    proofs::PolicyPredicate predicate;
+    if (!proofs::ParsePolicyPredicate(text, &predicate, &err)) {
+      std::cerr << "delegate failed: " << err << "\n";
+      return 1;
+    }
+    predicates.push_back(predicate);
+    bool seen = false;
+    for (const auto& claim : claims) {
+      if (claim == predicate.claim) {
+        seen = true;
+        break;
+      }
+    }
+    if (!seen) claims.push_back(predicate.claim);
+  }
+  if (claims.empty()) {
+    std::cerr << "error: at least one --claim or --predicate is required\n\n";
+    Usage();
+    return 2;
+  }
+  if (predicates.empty()) {
+    for (const auto& claim : claims) {
+      predicates.push_back({claim, proofs::PredicateOp::DISCLOSE, {}});
+    }
+  }
   if (!proofs::RunDelegateCommand(
           std::filesystem::path(holder_c),
           claims,
+          predicates,
           std::string(expires_c),
           agent_id,
           std::filesystem::path(out_c),
