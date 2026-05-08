@@ -1,7 +1,6 @@
 add_library(delegation_demo_lib
   shared/delegation_crypto.cc
   shared/delegation_files.cc
-  shared/revocation.cc
   alice/delegate.cc
   agent/present.cc
   verifier/verify.cc)
@@ -14,7 +13,7 @@ target_include_directories(delegation_demo_lib PUBLIC ${proofs_SOURCE_DIR})
 
 # Module A: Issuer（直接复用现有 mdoc_anoncred issuer 逻辑）
 add_executable(delegation_demo_issuer issuer/main.cc)
-target_link_libraries(delegation_demo_issuer delegation_demo_lib)
+target_link_libraries(delegation_demo_issuer mdoc_anoncred_demo_lib)
 
 # Module B: Alice（委托生成）
 add_executable(delegation_demo_alice alice/main.cc)

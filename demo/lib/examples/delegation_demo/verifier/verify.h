@@ -20,7 +20,6 @@ struct DelegationVerificationResult {
   bool delegation_sig_ok = false;  // 约束⑦：委托签名正确
   bool policy_claims_ok = false;   // 约束⑧：策略覆盖所有请求 claim
   bool policy_not_expired = false; // 约束⑨：策略未过期
-  bool revocation_ok = false;      // 约束⑪：凭证未撤销
   bool overall_ok = false;
   std::string message;
 };

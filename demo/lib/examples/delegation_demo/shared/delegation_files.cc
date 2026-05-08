@@ -7,7 +7,6 @@
 
 #include "examples/delegation_demo/shared/delegation_crypto.h"
 #include "examples/mdoc_anoncred/shared/files.h"
-#include "examples/delegation_demo/shared/revocation.h"
 
 namespace proofs {
 namespace {
@@ -238,11 +237,6 @@ bool WriteDelegationDir(const std::filesystem::path& dir,
   if (!WritePolicyJson(dir / "policy.json", policy, err)) {
     return false;
   }
-  if (holder.revocation_status.present &&
-      !WriteRevocationStatusJson(dir / "revocation_status.json",
-                                 holder.revocation_status, err)) {
-    return false;
-  }
 
   // -- 允许的 claims（平面文件格式，与 holder/claims 格式一致）--
   if (!WriteStringFile(dir / "allowed_claims_count.txt",
@@ -295,12 +289,6 @@ bool ReadDelegationDir(const std::filesystem::path& dir,
 
   // 读策略
   if (!ReadPolicyJson(dir / "policy.json", policy, err)) {
-    return false;
-  }
-  holder->revocation_status = {};
-  if (std::filesystem::exists(dir / "revocation_status.json") &&
-      !ReadRevocationStatusJson(dir / "revocation_status.json",
-                                &holder->revocation_status, err)) {
     return false;
   }
 

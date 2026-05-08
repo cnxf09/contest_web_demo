@@ -5,7 +5,6 @@
 
 #include "examples/delegation_demo/shared/delegation_crypto.h"
 #include "examples/delegation_demo/shared/delegation_files.h"
-#include "examples/delegation_demo/shared/revocation.h"
 #include "examples/delegation_demo/shared/types.h"
 #include "examples/mdoc_anoncred/shared/crypto.h"
 #include "examples/mdoc_anoncred/shared/files.h"
@@ -74,16 +73,6 @@ bool RunAgentPresentCommand(const std::filesystem::path& delegation_dir,
     }
     return false;
   }
-  if (!VerifyRevocationStatus(holder.revocation_status,
-                              issuer_public.revocation_pkx_hex,
-                              issuer_public.revocation_pky_hex,
-                              holder.device_pkx_hex, holder.device_pky_hex,
-                              request.now_iso8601, err)) {
-    if (err != nullptr) {
-      *err = "revocation check failed: " + *err;
-    }
-    return false;
-  }
 
   std::vector<std::string> requested_aliases;
   requested_aliases.reserve(request.claims.size());
@@ -129,10 +118,6 @@ bool RunAgentPresentCommand(const std::filesystem::path& delegation_dir,
 
   // 7. 写出标准 presentation 目录
   if (!WriteMdocPresentationDir(out_dir, presentation, err)) {
-    return false;
-  }
-  if (!WriteRevocationStatusJson(out_dir / "revocation_status.json",
-                                 holder.revocation_status, err)) {
     return false;
   }
 

@@ -15,15 +15,6 @@ struct ReaderClaim {
   std::vector<uint8_t> cbor_value;
 };
 
-struct RevocationStatus {
-  bool present = false;
-  std::string rev_id_hex;
-  uint64_t epoch = 0;
-  std::string expires;
-  bool revoked = false;
-  std::string sig_hex;
-};
-
 struct HolderMdoc {
   uint32_t example_id = 0;
   std::string doc_type;
@@ -32,7 +23,6 @@ struct HolderMdoc {
   std::string device_pkx_hex;
   std::string device_pky_hex;
   std::vector<ReaderClaim> issued_claims;
-  RevocationStatus revocation_status;
 };
 
 struct MdocIssuerPublicBundle {
@@ -44,8 +34,6 @@ struct MdocIssuerPublicBundle {
   std::string client_id = "mdoc-anoncred-demo";
   std::string response_uri = "https://verifier.example/callback";
   std::vector<std::string> supported_claim_aliases;
-  std::string revocation_pkx_hex;
-  std::string revocation_pky_hex;
 };
 
 struct ReaderRequest {
@@ -68,7 +56,6 @@ struct MdocPresentation {
   std::vector<uint8_t> proof_bytes;
   std::vector<std::string> claim_aliases;
   std::vector<ReaderClaim> disclosed_claims;
-  RevocationStatus revocation_status;
 };
 
 struct MdocVerificationResult {

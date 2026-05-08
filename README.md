@@ -194,22 +194,9 @@ python3 app.py
   "policy": {
     "agent_id": "bookstore-agent",
     "allowed_claims": ["age_over_18"],
-    "predicates": [{"claim":"age_over_18","op":"EQ","values":["true"]}],
     "created": "2026-04-01T10:00:00Z",
     "expires": "2027-01-01T00:00:00Z"
   }
-}
-```
-
-**revocation_status.json**（Issuer 生成，Module B/C 携带，Module D 验证）：
-
-```json
-{
-  "rev_id": "0x...",
-  "epoch": 1,
-  "expires": "2027-01-01T00:00:00Z",
-  "revoked": false,
-  "sig": "0x..."
 }
 ```
 
@@ -219,7 +206,7 @@ python3 app.py
 
 - **分层方案折衷**：当前 demo 中 Alice 将 `sk_d` 传入 `delegation/` 目录供 Agent 使用（ZK 电路需要设备签名）。完整方案中 `sk_d` 不应离开安全硬件。
 - **委托签名验证**：当前委托版电路在 ZK 内验证 `σ_del`，通过 MAC 桥接把隐藏的设备公钥与策略摘要绑定。
-- **可撤销性**：当前版本实现签名撤销状态令牌。Issuer 为 credential 的 `rev_id` 签发 `VALID/REVOKED` 状态，Agent 和 Verifier 都检查状态签名、有效期和 `revoked=false`。后续可将同一 `rev_id/status` 约束迁入 SMT/区间证明电路。
+- **可撤销性**：当前版本不实现。完整方案通过 SMT（稀疏 Merkle 树）实现约束⑪。
 
 ---
 
