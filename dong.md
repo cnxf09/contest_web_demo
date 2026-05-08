@@ -10,7 +10,7 @@
 - 约束 8：在 hash 电路中检查请求 claim 被 Alice 委托策略覆盖。
 - 约束 9：在 hash 电路中检查 `now < policy.expires`。
 - 约束 10：在签名电路中验证 Agent 对本次 session transcript/docType 摘要的 ECDSA 签名。
-- 约束 11：实现 Alice 控制的委托撤销状态检查；这是委托撤销，不是 Issuer 撤销凭证。
+- 约束 11：在电路中约束 Alice 控制的委托撤销状态；这是委托撤销，不是 Issuer 撤销凭证。
 - 保留原始 `run_mdoc_prover/verifier/generate_circuit`，新增 delegated 版本，避免破坏原 demo。
 - 增加通用谓词策略层，支持通过参数组合 `DISCLOSE / EQ / IN_SET / GE / LE`。
 
@@ -61,7 +61,17 @@ revoked 是否为 false
 status.expires 是否未过期
 ```
 
-Verifier 验证 presentation 时也会重复检查同一份状态。因此商家当前需要验证 `ZK proof + delegation_token + delegation_revocation_status`。撤销状态目前在应用层检查，没有放进电路；这样不改变现有电路，安全语义仍完整，因为状态由 Alice 签名，Verifier 会显式验证。
+Verifier 验证 presentation 时也会读取同一份状态作为电路公开输入。当前 delegated 电路会约束：
+
+```text
+delegation_id == SHA256("ZKDELID1" || delegation_msg)
+revocation_status_digest == SHA256("ZKDELST1" || delegation_id || epoch || expires || revoked)
+Alice/device public key 验证 revocation status signature
+revoked == false
+now < revocation_status.expires
+```
+
+应用层仍保留同样的显式检查，作为更早失败和更清晰报错的防线。因此商家当前验证 `ZK proof + delegation_token + delegation_revocation_status`，其中撤销状态既是 Verifier 可读材料，也是 ZK proof 绑定的公开输入。
 
 ## 通用谓词
 
@@ -259,7 +269,7 @@ present failed: delegation revocation check failed: delegation is revoked
 - 通用谓词目前在应用层检查，电路仍负责证明 claim 值来自 mdoc 且被委托授权。谓词内容被并入委托签名承诺，防止被篡改。
 - `GE/LE` 当前只支持可解析为整数的 CBOR 值。
 - 真实 IP/CIDR 不建议直接放进第一版电路。推荐先抽象成 `ip_region`、`network_zone`、`country_by_ip` 等离散 claim，再用 `IN_SET`。
-- 委托撤销目前是应用层签名状态检查，尚未放进 ZK 电路或 SMT。若后续要隐藏撤销索引、批量撤销或做公开可查询状态根，再考虑 SMT/Accumulator。
+- 委托撤销已进入 delegated 电路，但目前不是 SMT/Accumulator。若后续要隐藏撤销索引、批量撤销或做公开可查询状态根，再考虑 SMT/Accumulator。
 - 加密算法仍是 P-256 ECDSA + SHA-256，后续再替换为 SM2/SM3。
 
 ## 关键修改文件

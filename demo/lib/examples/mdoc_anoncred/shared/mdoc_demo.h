@@ -43,6 +43,11 @@ bool ProveDelegatedMdocPresentation(
     size_t allowed_claim_count, const std::string& policy_expires,
     const std::vector<uint8_t>& agent_id_hash,
     const std::vector<uint8_t>& requested_claim_hashes,
+    const std::vector<uint8_t>& revocation_id,
+    const std::vector<uint8_t>& revocation_epoch_be,
+    const std::string& revocation_expires,
+    uint8_t revocation_revoked,
+    const std::vector<uint8_t>& revocation_sig,
     MdocPresentation* presentation, std::string* err);
 
 MdocVerificationResult VerifyMdocPresentation(
@@ -56,7 +61,11 @@ MdocVerificationResult VerifyDelegatedMdocPresentation(
     const std::vector<uint8_t>& allowed_claim_hashes_padded,
     size_t allowed_claim_count, const std::string& policy_expires,
     const std::vector<uint8_t>& agent_id_hash,
-    const std::vector<uint8_t>& requested_claim_hashes);
+    const std::vector<uint8_t>& requested_claim_hashes,
+    const std::vector<uint8_t>& revocation_id,
+    const std::vector<uint8_t>& revocation_epoch_be,
+    const std::string& revocation_expires,
+    uint8_t revocation_revoked);
 
 }  // namespace proofs
 

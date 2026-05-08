@@ -7,11 +7,23 @@
 #include "examples/delegation_demo/shared/delegation_files.h"
 #include "examples/delegation_demo/shared/delegation_revocation.h"
 #include "examples/delegation_demo/shared/types.h"
+#include "examples/mdoc_anoncred/shared/crypto.h"
 #include "examples/mdoc_anoncred/shared/files.h"
 #include "examples/mdoc_anoncred/shared/mdoc_demo.h"
 #include "examples/mdoc_anoncred/verifier/verify.h"
 
 namespace proofs {
+namespace {
+
+std::vector<uint8_t> Uint64Be(uint64_t v) {
+  std::vector<uint8_t> out(8);
+  for (int i = 7; i >= 0; --i) {
+    out[7 - i] = static_cast<uint8_t>((v >> (i * 8)) & 0xff);
+  }
+  return out;
+}
+
+}  // namespace
 
 // ----------------------------------------------------------------
 // D-1: 生成验证请求
@@ -81,11 +93,18 @@ bool RunDelegationVerifyCommand(
                                     &agent_id_hash, &requested_hashes, err)) {
     return false;
   }
+  std::vector<uint8_t> revocation_id_bytes;
+  if (!HexToBytes(revocation_status.delegation_id_hex, &revocation_id_bytes,
+                  err)) {
+    return false;
+  }
 
   const MdocVerificationResult zk_result = VerifyDelegatedMdocPresentation(
       issuer_public, request, presentation, agent_pkx, agent_pky,
       allowed_hashes, policy.allowed_claims.size(), policy.expires,
-      agent_id_hash, requested_hashes);
+      agent_id_hash, requested_hashes, revocation_id_bytes,
+      Uint64Be(revocation_status.epoch), revocation_status.expires,
+      revocation_status.revoked ? 1 : 0);
 
   std::string predicate_err;
   const bool predicates_ok =
@@ -96,7 +115,7 @@ bool RunDelegationVerifyCommand(
       revocation_status, device_pkx, device_pky, del_msg, request.now_iso8601,
       &revocation_err);
 
-  // 约束⑦-⑩已进入 ZK 电路；下面的布尔项用于保持 CLI 展示格式。
+  // 约束⑦-⑪已进入 ZK 电路；下面的布尔项用于保持 CLI 展示格式。
   result->zk_proof_ok = zk_result.ok;
   result->delegation_sig_ok = zk_result.ok;
   result->policy_claims_ok = zk_result.ok && predicates_ok;

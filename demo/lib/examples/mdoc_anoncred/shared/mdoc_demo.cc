@@ -484,6 +484,11 @@ bool ProveDelegatedMdocPresentation(
     size_t allowed_claim_count, const std::string& policy_expires,
     const std::vector<uint8_t>& agent_id_hash,
     const std::vector<uint8_t>& requested_claim_hashes,
+    const std::vector<uint8_t>& revocation_id,
+    const std::vector<uint8_t>& revocation_epoch_be,
+    const std::string& revocation_expires,
+    uint8_t revocation_revoked,
+    const std::vector<uint8_t>& revocation_sig,
     MdocPresentation* presentation, std::string* err) {
   std::vector<RequestedAttribute> attrs;
   std::vector<ReaderClaim> resolved_claims;
@@ -512,6 +517,8 @@ bool ProveDelegatedMdocPresentation(
       delegation_sig.size(), agent_sig.data(), agent_sig.size(),
       allowed_claim_hashes_padded.data(), allowed_claim_count,
       policy_expires.c_str(), agent_id_hash.data(), requested_claim_hashes.data(),
+      revocation_id.data(), revocation_epoch_be.data(), revocation_expires.c_str(),
+      revocation_revoked, revocation_sig.data(), revocation_sig.size(),
       &proof, &proof_len, &spec);
   if (ret != MDOC_PROVER_SUCCESS) {
     if (err != nullptr) {
@@ -581,7 +588,11 @@ MdocVerificationResult VerifyDelegatedMdocPresentation(
     const std::vector<uint8_t>& allowed_claim_hashes_padded,
     size_t allowed_claim_count, const std::string& policy_expires,
     const std::vector<uint8_t>& agent_id_hash,
-    const std::vector<uint8_t>& requested_claim_hashes) {
+    const std::vector<uint8_t>& requested_claim_hashes,
+    const std::vector<uint8_t>& revocation_id,
+    const std::vector<uint8_t>& revocation_epoch_be,
+    const std::string& revocation_expires,
+    uint8_t revocation_revoked) {
   MdocVerificationResult result;
   if (presentation.claim_aliases.size() != request.claims.size()) {
     result.message = "presentation claim count mismatch";
@@ -617,6 +628,8 @@ MdocVerificationResult VerifyDelegatedMdocPresentation(
       agent_pkx_hex.c_str(), agent_pky_hex.c_str(),
       allowed_claim_hashes_padded.data(), allowed_claim_count,
       policy_expires.c_str(), agent_id_hash.data(), requested_claim_hashes.data(),
+      revocation_id.data(), revocation_epoch_be.data(), revocation_expires.c_str(),
+      revocation_revoked,
       &spec);
   result.ok = ret == MDOC_VERIFIER_SUCCESS;
   result.message = result.ok
