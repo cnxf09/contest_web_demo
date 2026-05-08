@@ -5,6 +5,7 @@
 
 #include "examples/delegation_demo/shared/delegation_crypto.h"
 #include "examples/delegation_demo/shared/delegation_files.h"
+#include "examples/delegation_demo/shared/delegation_revocation.h"
 #include "examples/delegation_demo/shared/types.h"
 #include "examples/mdoc_anoncred/shared/crypto.h"
 #include "examples/mdoc_anoncred/shared/files.h"
@@ -74,6 +75,20 @@ bool RunAgentPresentCommand(const std::filesystem::path& delegation_dir,
     return false;
   }
 
+  DelegationRevocationStatus revocation_status;
+  if (!ReadDelegationRevocationStatusJson(
+          delegation_dir / "delegation_revocation_status.json",
+          &revocation_status, err)) {
+    if (err != nullptr) *err = "failed to read delegation revocation status: " + *err;
+    return false;
+  }
+  if (!VerifyDelegationRevocationStatus(
+          revocation_status, holder.device_pkx_hex, holder.device_pky_hex,
+          del_msg, request.now_iso8601, err)) {
+    if (err != nullptr) *err = "delegation revocation check failed: " + *err;
+    return false;
+  }
+
   std::vector<std::string> requested_aliases;
   requested_aliases.reserve(request.claims.size());
   for (const auto& claim : request.claims) {
@@ -127,6 +142,11 @@ bool RunAgentPresentCommand(const std::filesystem::path& delegation_dir,
                                 agent_sig,
                                 holder.device_pkx_hex, holder.device_pky_hex,
                                 policy, err)) {
+    return false;
+  }
+  if (!WriteDelegationRevocationStatusJson(
+          out_dir / "delegation_revocation_status.json",
+          revocation_status, err)) {
     return false;
   }
 
