@@ -213,6 +213,12 @@ bool ReadMdocIssuerPublicDir(const std::filesystem::path& dir,
       }
     }
   }
+  issuer_public->revocation_pkx_hex.clear();
+  issuer_public->revocation_pky_hex.clear();
+  (void)ReadStringFile(dir / "revocation_pkx.txt",
+                       &issuer_public->revocation_pkx_hex, nullptr);
+  (void)ReadStringFile(dir / "revocation_pky.txt",
+                       &issuer_public->revocation_pky_hex, nullptr);
   return true;
 }
 

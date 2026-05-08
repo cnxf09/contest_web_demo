@@ -8,6 +8,7 @@
 
 #include "examples/delegation_demo/shared/delegation_crypto.h"
 #include "examples/delegation_demo/shared/delegation_files.h"
+#include "examples/delegation_demo/shared/revocation.h"
 #include "examples/mdoc_anoncred/shared/crypto.h"
 #include "examples/mdoc_anoncred/shared/files.h"
 #include "examples/mdoc_anoncred/shared/types.h"
@@ -55,6 +56,11 @@ bool RunDelegateCommand(const std::filesystem::path& holder_dir,
   HolderMdoc holder;
   if (!ReadHolderMdocDir(holder_dir, &holder, err)) {
     if (err != nullptr) *err = "failed to read holder dir: " + *err;
+    return false;
+  }
+  if (!ReadRevocationStatusJson(holder_dir / "revocation_status.json",
+                                &holder.revocation_status, err)) {
+    if (err != nullptr) *err = "failed to read revocation status: " + *err;
     return false;
   }
 

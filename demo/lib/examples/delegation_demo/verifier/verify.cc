@@ -5,6 +5,7 @@
 
 #include "examples/delegation_demo/shared/delegation_crypto.h"
 #include "examples/delegation_demo/shared/delegation_files.h"
+#include "examples/delegation_demo/shared/revocation.h"
 #include "examples/delegation_demo/shared/types.h"
 #include "examples/mdoc_anoncred/shared/files.h"
 #include "examples/mdoc_anoncred/shared/mdoc_demo.h"
@@ -60,6 +61,11 @@ bool RunDelegationVerifyCommand(
                                err)) {
     return false;
   }
+  RevocationStatus revocation_status;
+  if (!ReadRevocationStatusJson(presentation_dir / "revocation_status.json",
+                                &revocation_status, err)) {
+    return false;
+  }
 
   std::vector<std::string> requested_aliases;
   requested_aliases.reserve(request.claims.size());
@@ -83,13 +89,20 @@ bool RunDelegationVerifyCommand(
   const bool predicates_ok =
       EvaluatePolicyPredicates(policy, presentation.disclosed_claims,
                                &predicate_err);
+  std::string revocation_err;
+  const bool revocation_ok =
+      VerifyRevocationStatus(revocation_status, issuer_public.revocation_pkx_hex,
+                             issuer_public.revocation_pky_hex, device_pkx,
+                             device_pky, request.now_iso8601,
+                             &revocation_err);
 
   // 约束⑦-⑩已进入 ZK 电路；下面的布尔项用于保持 CLI 展示格式。
   result->zk_proof_ok = zk_result.ok;
   result->delegation_sig_ok = zk_result.ok;
   result->policy_claims_ok = zk_result.ok && predicates_ok;
   result->policy_not_expired = zk_result.ok;
-  result->overall_ok = zk_result.ok && predicates_ok;
+  result->revocation_ok = zk_result.ok && revocation_ok;
+  result->overall_ok = zk_result.ok && predicates_ok && revocation_ok;
 
   std::ostringstream msg;
   msg << "ZK proof: " << (result->zk_proof_ok ? "PASS" : "FAIL") << "\n";
@@ -104,6 +117,11 @@ bool RunDelegationVerifyCommand(
   }
   msg << "Policy expiry: "
       << (result->policy_not_expired ? "PASS" : "FAIL") << "\n";
+  msg << "Revocation: " << (result->revocation_ok ? "PASS" : "FAIL");
+  if (!revocation_ok) {
+    msg << " (" << revocation_err << ")";
+  }
+  msg << "\n";
   msg << "Overall: " << (result->overall_ok ? "ACCEPT" : "REJECT");
   result->message = msg.str();
 
