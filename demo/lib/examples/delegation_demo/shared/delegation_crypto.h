@@ -4,7 +4,9 @@
 #include <string>
 #include <vector>
 
+#include "circuits/mdoc/mdoc_zk.h"
 #include "examples/delegation_demo/shared/types.h"
+#include "examples/mdoc_anoncred/shared/types.h"
 
 namespace proofs {
 
@@ -12,7 +14,7 @@ namespace proofs {
 // 输出示例：{"agent_id":"x","allowed_claims":["age_over_18"],"created":"...","expires":"..."}
 std::string CanonicalPolicyJson(const Policy& policy);
 
-// 计算委托消息摘要：SHA256(pk_ag_x_bytes || pk_ag_y_bytes || canonical_policy_bytes)
+// 计算委托消息摘要：SHA256(固定宽度电路友好委托消息)
 // agent_pkx_hex, agent_pky_hex: 0x 前缀的 64 字符 hex（来自 GenerateP256KeyPair 输出）
 // out_msg_hex: 输出 0x 前缀的 64 字符 hex（32 字节 SHA256）
 bool ComputeDelegationMsg(const std::string& agent_pkx_hex,
@@ -36,6 +38,25 @@ bool VerifyDelegationSig(const std::string& pkx_hex,
                          const std::string& msg_hex,
                          const std::string& sig_hex,
                          std::string* err);
+
+bool HashClaimAlias(const std::string& alias, std::vector<uint8_t>* out_hash);
+
+bool HashAgentId(const std::string& agent_id, std::vector<uint8_t>* out_hash);
+
+bool ParsePolicyPredicate(const std::string& text, PolicyPredicate* predicate,
+                          std::string* err);
+
+std::string PredicateOpName(PredicateOp op);
+
+bool EvaluatePolicyPredicates(const Policy& policy,
+                              const std::vector<ReaderClaim>& claims,
+                              std::string* err);
+
+bool BuildDelegationCircuitInputs(
+    const Policy& policy, const std::vector<std::string>& requested_aliases,
+    std::vector<uint8_t>* allowed_claim_hashes_padded,
+    std::vector<uint8_t>* agent_id_hash,
+    std::vector<uint8_t>* requested_claim_hashes, std::string* err);
 
 // 检查 claim alias 是否在策略允许范围内（约束⑧应用层实现）
 bool PolicyAllowsClaim(const Policy& policy, const std::string& alias);

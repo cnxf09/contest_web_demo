@@ -74,6 +74,29 @@ class MdocSignature {
     }
   };
 
+  class DelegatedWitness {
+   public:
+    Witness mdoc_;
+    EltW delegation_e_;
+    EltW revocation_status_e_;
+    EcdsaWitness delegation_sig_;
+    EcdsaWitness revocation_sig_;
+    EcdsaWitness agent_sig_;
+    MACWitness delegation_mac_;
+    MACWitness revocation_status_mac_;
+
+    void input(const LogicCircuit& lc) {
+      mdoc_.input(lc);
+      delegation_e_ = lc.eltw_input();
+      revocation_status_e_ = lc.eltw_input();
+      delegation_sig_.input(lc);
+      revocation_sig_.input(lc);
+      agent_sig_.input(lc);
+      delegation_mac_.input(lc);
+      revocation_status_mac_.input(lc);
+    }
+  };
+
   explicit MdocSignature(const LogicCircuit& lc, const EC& ec, const Nat& order)
       : lc_(lc), ec_(ec), order_(order) {}
 
@@ -98,6 +121,30 @@ class MdocSignature {
     macc.verify_mac(vw.e_, mac_e, a_v, vw.macs_[0], order_);
     macc.verify_mac(vw.dpkx_, mac_dpkX, a_v, vw.macs_[1], order_);
     macc.verify_mac(vw.dpky_, mac_dpkY, a_v, vw.macs_[2], order_);
+  }
+
+  void assert_delegated_signatures(EltW pkX, EltW pkY, EltW hash_tr,
+                                   EltW agent_pkX, EltW agent_pkY,
+                                   v128 mac_e[2], v128 mac_dpkX[2],
+                                   v128 mac_dpkY[2],
+                                   v128 mac_delegation_e[2],
+                                   v128 mac_revocation_status_e[2],
+                                   v128 a_v,
+                                   DelegatedWitness& vw) const {
+    assert_signatures(pkX, pkY, hash_tr, mac_e, mac_dpkX, mac_dpkY, a_v,
+                      vw.mdoc_);
+
+    Ecdsa ecc(lc_, ec_, order_);
+    mac macc(lc_);
+    ecc.verify_signature3(vw.mdoc_.dpkx_, vw.mdoc_.dpky_, vw.delegation_e_,
+                          vw.delegation_sig_);
+    ecc.verify_signature3(vw.mdoc_.dpkx_, vw.mdoc_.dpky_,
+                          vw.revocation_status_e_, vw.revocation_sig_);
+    ecc.verify_signature3(agent_pkX, agent_pkY, hash_tr, vw.agent_sig_);
+    macc.verify_mac(vw.delegation_e_, mac_delegation_e, a_v,
+                    vw.delegation_mac_, order_);
+    macc.verify_mac(vw.revocation_status_e_, mac_revocation_status_e, a_v,
+                    vw.revocation_status_mac_, order_);
   }
 
   // This function is similar to assert_signatures, but it also hides the

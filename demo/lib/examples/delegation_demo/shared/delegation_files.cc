@@ -69,6 +69,73 @@ static std::vector<std::string> ExtractJsonStringArray(const std::string& json,
   return result;
 }
 
+static std::vector<PolicyPredicate> ExtractPredicates(const std::string& json) {
+  std::vector<PolicyPredicate> out;
+  const std::string key = "\"predicates\"";
+  size_t pos = json.find(key);
+  if (pos == std::string::npos) return out;
+  pos = json.find('[', pos);
+  if (pos == std::string::npos) return out;
+  size_t end = std::string::npos;
+  size_t depth = 0;
+  for (size_t i = pos; i < json.size(); ++i) {
+    if (json[i] == '[') {
+      ++depth;
+    } else if (json[i] == ']') {
+      --depth;
+      if (depth == 0) {
+        end = i;
+        break;
+      }
+    }
+  }
+  if (end == std::string::npos) return out;
+  size_t cur = pos;
+  while (cur < end) {
+    const size_t obj = json.find('{', cur);
+    if (obj == std::string::npos || obj > end) break;
+    const size_t obj_end = json.find('}', obj);
+    if (obj_end == std::string::npos || obj_end > end) break;
+    const std::string one = json.substr(obj, obj_end - obj + 1);
+    PolicyPredicate p;
+    p.claim = ExtractJsonString(one, "claim");
+    const std::string op = ExtractJsonString(one, "op");
+    if (op == "EQ") {
+      p.op = PredicateOp::EQ;
+    } else if (op == "IN_SET") {
+      p.op = PredicateOp::IN_SET;
+    } else if (op == "GE") {
+      p.op = PredicateOp::GE;
+    } else if (op == "LE") {
+      p.op = PredicateOp::LE;
+    } else {
+      p.op = PredicateOp::DISCLOSE;
+    }
+    p.values = ExtractJsonStringArray(one, "values");
+    if (!p.claim.empty()) out.push_back(p);
+    cur = obj_end + 1;
+  }
+  return out;
+}
+
+static void WritePredicates(std::ostringstream& oss,
+                            const std::vector<PolicyPredicate>& predicates,
+                            const std::string& indent) {
+  oss << indent << "\"predicates\": [";
+  for (size_t i = 0; i < predicates.size(); ++i) {
+    if (i > 0) oss << ", ";
+    oss << "{\"claim\":\"" << predicates[i].claim << "\","
+        << "\"op\":\"" << PredicateOpName(predicates[i].op)
+        << "\",\"values\":[";
+    for (size_t j = 0; j < predicates[i].values.size(); ++j) {
+      if (j > 0) oss << ", ";
+      oss << "\"" << predicates[i].values[j] << "\"";
+    }
+    oss << "]}";
+  }
+  oss << "]";
+}
+
 }  // namespace
 
 // ----------------------------------------------------------------
@@ -89,7 +156,9 @@ bool WritePolicyJson(const std::filesystem::path& path,
   }
   oss << "],\n";
   oss << "  \"created\": \"" << policy.created << "\",\n";
-  oss << "  \"expires\": \"" << policy.expires << "\"\n";
+  oss << "  \"expires\": \"" << policy.expires << "\",\n";
+  WritePredicates(oss, policy.predicates, "  ");
+  oss << "\n";
   oss << "}\n";
 
   if (!EnsureDir(path.parent_path(), err)) return false;
@@ -117,6 +186,7 @@ bool ReadPolicyJson(const std::filesystem::path& path,
   policy->expires  = ExtractJsonString(json, "expires");
   policy->created  = ExtractJsonString(json, "created");
   policy->allowed_claims = ExtractJsonStringArray(json, "allowed_claims");
+  policy->predicates = ExtractPredicates(json);
 
   if (policy->expires.empty()) {
     if (err != nullptr) *err = "policy.json missing 'expires' field";
@@ -251,6 +321,7 @@ bool WriteDelegationTokenJson(const std::filesystem::path& path,
                               const std::string& agent_pky_hex,
                               const std::string& del_msg_hex,
                               const std::string& del_sig_hex,
+                              const std::string& agent_sig_hex,
                               const std::string& device_pkx_hex,
                               const std::string& device_pky_hex,
                               const Policy& policy,
@@ -263,6 +334,7 @@ bool WriteDelegationTokenJson(const std::filesystem::path& path,
   oss << "  \"agent_pky\": \"" << agent_pky_hex << "\",\n";
   oss << "  \"delegation_msg\": \"" << del_msg_hex << "\",\n";
   oss << "  \"delegation_sig\": \"" << del_sig_hex << "\",\n";
+  oss << "  \"agent_sig\": \"" << agent_sig_hex << "\",\n";
   oss << "  \"device_pkx\": \"" << device_pkx_hex << "\",\n";
   oss << "  \"device_pky\": \"" << device_pky_hex << "\",\n";
   oss << "  \"policy\": {\n";
@@ -274,7 +346,9 @@ bool WriteDelegationTokenJson(const std::filesystem::path& path,
   }
   oss << "],\n";
   oss << "    \"created\": \"" << policy.created << "\",\n";
-  oss << "    \"expires\": \"" << policy.expires << "\"\n";
+  oss << "    \"expires\": \"" << policy.expires << "\",\n";
+  WritePredicates(oss, policy.predicates, "    ");
+  oss << "\n";
   oss << "  }\n";
   oss << "}\n";
 
@@ -292,6 +366,7 @@ bool ReadDelegationTokenJson(const std::filesystem::path& path,
                              std::string* agent_pky_hex,
                              std::string* del_msg_hex,
                              std::string* del_sig_hex,
+                             std::string* agent_sig_hex,
                              std::string* device_pkx_hex,
                              std::string* device_pky_hex,
                              Policy* policy,
@@ -308,6 +383,7 @@ bool ReadDelegationTokenJson(const std::filesystem::path& path,
   *agent_pky_hex  = ExtractJsonString(json, "agent_pky");
   *del_msg_hex    = ExtractJsonString(json, "delegation_msg");
   *del_sig_hex    = ExtractJsonString(json, "delegation_sig");
+  *agent_sig_hex   = ExtractJsonString(json, "agent_sig");
   *device_pkx_hex = ExtractJsonString(json, "device_pkx");
   *device_pky_hex = ExtractJsonString(json, "device_pky");
 
@@ -315,8 +391,10 @@ bool ReadDelegationTokenJson(const std::filesystem::path& path,
   policy->expires         = ExtractJsonString(json, "expires");
   policy->created         = ExtractJsonString(json, "created");
   policy->allowed_claims  = ExtractJsonStringArray(json, "allowed_claims");
+  policy->predicates      = ExtractPredicates(json);
 
-  if (agent_pkx_hex->empty() || del_sig_hex->empty()) {
+  if (agent_pkx_hex->empty() || del_sig_hex->empty() ||
+      agent_sig_hex->empty()) {
     if (err != nullptr) *err = "delegation_token.json missing required fields";
     return false;
   }

@@ -195,5 +195,129 @@ CircuitGenerationErrorCode generate_circuit(const ZkSpecStruct* zk_spec,
   return CIRCUIT_GENERATION_SUCCESS;
 }
 
+CircuitGenerationErrorCode generate_delegated_circuit(
+    const ZkSpecStruct* zk_spec, uint8_t** cb, size_t* clen) {
+  if (zk_spec == nullptr) {
+    return CIRCUIT_GENERATION_NULL_INPUT;
+  }
+  if (cb == nullptr || clen == nullptr) {
+    return CIRCUIT_GENERATION_NULL_INPUT;
+  }
+
+  const size_t number_of_attributes = zk_spec->num_attributes;
+  std::vector<uint8_t> bytes;
+
+  {
+    using CompilerBackend = CompilerBackend<Fp256Base>;
+    using LogicCircuit = Logic<Fp256Base, CompilerBackend>;
+    using EltW = LogicCircuit::EltW;
+    using MACTag = LogicCircuit::v128;
+    using MdocSignature = MdocSignature<LogicCircuit, Fp256Base, P256>;
+    QuadCircuit<Fp256Base> Q(p256_base);
+    const CompilerBackend cbk(&Q);
+    const LogicCircuit lc(&cbk, p256_base);
+    MdocSignature mdoc_s(lc, p256, n256_order);
+
+    EltW pkX = lc.eltw_input(), pkY = lc.eltw_input();
+    EltW htr = lc.eltw_input();
+    EltW agent_pkX = lc.eltw_input(), agent_pkY = lc.eltw_input();
+    MACTag mac[11]; /* 5 macs + av */
+    for (size_t i = 0; i < 11; ++i) {
+      mac[i] = lc.vinput<128>();
+    }
+    Q.private_input();
+
+    auto w = std::make_unique<MdocSignature::DelegatedWitness>();
+    w->input(lc);
+    mdoc_s.assert_delegated_signatures(pkX, pkY, htr, agent_pkX, agent_pkY,
+                                       &mac[0], &mac[2], &mac[4], &mac[6],
+                                       &mac[8], mac[10], *w);
+
+    auto circ = Q.mkcircuit(/*nc=*/1);
+    dump_info("delegated_sig", Q);
+    CircuitRep<Fp256Base> cr(p256_base, P256_ID);
+    cr.to_bytes(*circ, bytes);
+  }
+  {
+    const f_128 Fs;
+
+    using CompilerBackend = CompilerBackend<f_128>;
+    using LogicCircuit = Logic<f_128, CompilerBackend>;
+    using v8 = LogicCircuit::v8;
+    using v256 = LogicCircuit::v256;
+    using MdocHash = MdocHash<LogicCircuit, f_128>;
+    using MacBitPlucker = BitPlucker<LogicCircuit, kMACPluckerBits>;
+    using MAC = MACGF2<CompilerBackend, MacBitPlucker>;
+    using MACWitness = typename MAC::Witness;
+    using MACTag = MAC::v128;
+
+    QuadCircuit<f_128> Q(Fs);
+    const CompilerBackend cbk(&Q);
+    const LogicCircuit lc(&cbk, Fs);
+    MAC mac_check(lc);
+
+    std::vector<MdocHash::OpenedAttribute> oa(number_of_attributes);
+    MdocHash mdoc_h(lc);
+    for (size_t ai = 0; ai < number_of_attributes; ++ai) {
+      oa[ai].input(lc);
+    }
+    v8 now[20];
+    for (size_t i = 0; i < 20; ++i) {
+      now[i] = lc.template vinput<8>();
+    }
+    typename MdocHash::DelegationPolicyInput delegation_in(
+        number_of_attributes);
+    delegation_in.input(lc);
+
+    MACTag mac[11]; /* 5 macs + av */
+    for (size_t i = 0; i < 11; ++i) {
+      mac[i] = lc.eltw_input();
+    }
+
+    Q.private_input();
+    v256 e = lc.template vinput<256>();
+    v256 dpkx = lc.template vinput<256>();
+    v256 dpky = lc.template vinput<256>();
+    v256 delegation_e = lc.template vinput<256>();
+    v256 revocation_status_e = lc.template vinput<256>();
+
+    auto w = std::make_unique<MdocHash::Witness>(number_of_attributes);
+    w->input(lc);
+    typename MdocHash::DelegationPolicyWitness delegation_w;
+    delegation_w.input(lc);
+
+    Q.begin_full_field();
+    MACWitness macw[5]; /* MACs for e, dpkx, dpky, delegation_e, revocation_status_e */
+    for (size_t i = 0; i < 5; ++i) {
+      macw[i].input(lc);
+    }
+
+    mdoc_h.assert_valid_hash_mdoc(oa.data(), now, e, dpkx, dpky, *w);
+    mdoc_h.assert_delegation_policy(delegation_in, now, delegation_e,
+                                    revocation_status_e, delegation_w);
+
+    MACTag a_v = mac[10];
+    mac_check.verify_mac(&mac[0], a_v, e, macw[0]);
+    mac_check.verify_mac(&mac[2], a_v, dpkx, macw[1]);
+    mac_check.verify_mac(&mac[4], a_v, dpky, macw[2]);
+    mac_check.verify_mac(&mac[6], a_v, delegation_e, macw[3]);
+    mac_check.verify_mac(&mac[8], a_v, revocation_status_e, macw[4]);
+
+    auto circ = Q.mkcircuit(/*nc=*/1);
+    dump_info("delegated_hash", Q);
+    CircuitRep<f_128> cr(Fs, GF2_128_ID);
+    cr.to_bytes(*circ, bytes);
+  }
+
+  size_t sz = bytes.size();
+  size_t buf_size = sz / 3 + 1;
+  uint8_t* buf = (uint8_t*)malloc(buf_size);
+  size_t zl = ZSTD_compress(buf, buf_size, bytes.data(), sz, 16);
+  log(INFO, "delegated zstd from %zu --> %zu", sz, zl);
+  *clen = zl;
+  *cb = buf;
+  return CIRCUIT_GENERATION_SUCCESS;
+}
+
 } /* extern "C" */
 }  // namespace proofs

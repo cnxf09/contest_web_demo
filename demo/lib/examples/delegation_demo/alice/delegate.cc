@@ -8,6 +8,7 @@
 
 #include "examples/delegation_demo/shared/delegation_crypto.h"
 #include "examples/delegation_demo/shared/delegation_files.h"
+#include "examples/delegation_demo/shared/delegation_revocation.h"
 #include "examples/mdoc_anoncred/shared/crypto.h"
 #include "examples/mdoc_anoncred/shared/files.h"
 #include "examples/mdoc_anoncred/shared/types.h"
@@ -46,8 +47,10 @@ std::vector<ReaderClaim> FilterClaims(const std::vector<ReaderClaim>& all_claims
 
 bool RunDelegateCommand(const std::filesystem::path& holder_dir,
                         const std::vector<std::string>& allowed_claims,
+                        const std::vector<PolicyPredicate>& predicates,
                         const std::string& expires,
                         const std::string& agent_id,
+                        bool revoked,
                         const std::filesystem::path& out_dir,
                         std::string* err) {
   // Step 1: 读取 Alice 的 holder 凭证
@@ -67,6 +70,7 @@ bool RunDelegateCommand(const std::filesystem::path& holder_dir,
   // Step 3: 构造 Policy
   Policy policy;
   policy.allowed_claims = allowed_claims;
+  policy.predicates = predicates;
   policy.expires = expires;
   policy.agent_id = agent_id;
   policy.created = CurrentTimeISO8601();
@@ -98,7 +102,16 @@ bool RunDelegateCommand(const std::filesystem::path& holder_dir,
     }
   }
 
-  // Step 7: 筛选允许的 claims
+  // Step 7: Alice 对该委托的撤销状态签名，Verifier 后续据此判断委托是否仍有效
+  DelegationRevocationStatus revocation_status;
+  if (!CreateDelegationRevocationStatus(holder.device_sk_hex, del_msg_hex,
+                                        1, expires, revoked,
+                                        &revocation_status, err)) {
+    if (err != nullptr) *err = "failed to create revocation status: " + *err;
+    return false;
+  }
+
+  // Step 8: 筛选允许的 claims
   const std::vector<ReaderClaim> filtered = FilterClaims(holder.issued_claims, allowed_claims);
   if (filtered.empty() && !allowed_claims.empty()) {
     if (err != nullptr) {
@@ -107,12 +120,18 @@ bool RunDelegateCommand(const std::filesystem::path& holder_dir,
     return false;
   }
 
-  // Step 8: 写出 delegation/ 目录
+  // Step 9: 写出 delegation/ 目录
   if (!WriteDelegationDir(out_dir, holder,
                            agent_pkx_hex, agent_pky_hex, agent_sk_hex,
                            del_msg_hex, del_sig_hex,
                            policy, filtered, err)) {
     if (err != nullptr) *err = "failed to write delegation dir: " + *err;
+    return false;
+  }
+  if (!WriteDelegationRevocationStatusJson(
+          out_dir / "delegation_revocation_status.json",
+          revocation_status, err)) {
+    if (err != nullptr) *err = "failed to write revocation status: " + *err;
     return false;
   }
 

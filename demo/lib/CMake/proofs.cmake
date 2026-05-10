@@ -14,10 +14,23 @@
 
 add_compile_definitions(OPENSSL_SUPPRESS_DEPRECATED=1)
 include(GoogleTest)
-find_package(benchmark REQUIRED)
-find_package(GTest REQUIRED)
+
+option(PROOFS_BUILD_TESTS "Build tests and benchmarks" OFF)
+if(PROOFS_BUILD_TESTS)
+    find_package(benchmark REQUIRED)
+    find_package(GTest REQUIRED)
+endif()
+
+find_library(PROOFS_ZSTD_LIBRARY NAMES zstd libzstd.so.1
+             PATHS /usr/lib/x86_64-linux-gnu /lib/x86_64-linux-gnu)
+if(NOT PROOFS_ZSTD_LIBRARY)
+    message(FATAL_ERROR "zstd library not found; install libzstd-dev or provide libzstd.so.1")
+endif()
 
 macro(proofs_add_testing_libraries PROG)
+    if(NOT PROOFS_BUILD_TESTS)
+        return()
+    endif()
     # libraries that are common enough to be useful in all tests
     target_link_libraries(${PROG} testing_main)    
 
@@ -35,6 +48,9 @@ macro(proofs_add_testing_libraries PROG)
 endmacro()
 
 macro(proofs_add_test PROG)
+    if(NOT PROOFS_BUILD_TESTS)
+        return()
+    endif()
     add_executable(${PROG} ${PROG}.cc ${ARGN})
     target_link_libraries(${PROG} ec)    
     target_link_libraries(${PROG} algebra)
@@ -43,8 +59,10 @@ macro(proofs_add_test PROG)
 endmacro()
 
 macro(proofs_add_tests)
+    if(NOT PROOFS_BUILD_TESTS)
+        return()
+    endif()
     foreach (PROG ${ARGN})
         proofs_add_test(${PROG})
     endforeach ()
 endmacro()
-

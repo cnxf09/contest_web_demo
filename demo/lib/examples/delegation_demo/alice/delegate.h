@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "examples/delegation_demo/shared/types.h"
+
 namespace proofs {
 
 // 执行委托命令：
@@ -18,11 +20,14 @@ namespace proofs {
 //   allowed_claims:  委托允许的 claim alias 列表
 //   expires:         委托过期时间，ISO 8601，如 "2027-01-01T00:00:00Z"
 //   agent_id:        Agent 标识，如 "bookstore-agent"
+//   revoked:         写出已撤销状态，用于本地验证负例
 //   out_dir:         输出 delegation/ 目录
 bool RunDelegateCommand(const std::filesystem::path& holder_dir,
                         const std::vector<std::string>& allowed_claims,
+                        const std::vector<PolicyPredicate>& predicates,
                         const std::string& expires,
                         const std::string& agent_id,
+                        bool revoked,
                         const std::filesystem::path& out_dir,
                         std::string* err);
 
