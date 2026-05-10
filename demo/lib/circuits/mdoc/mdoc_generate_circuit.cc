@@ -221,8 +221,8 @@ CircuitGenerationErrorCode generate_delegated_circuit(
     EltW pkX = lc.eltw_input(), pkY = lc.eltw_input();
     EltW htr = lc.eltw_input();
     EltW agent_pkX = lc.eltw_input(), agent_pkY = lc.eltw_input();
-    MACTag mac[11]; /* 5 macs + av */
-    for (size_t i = 0; i < 11; ++i) {
+    MACTag mac[9]; /* 4 macs + av */
+    for (size_t i = 0; i < 9; ++i) {
       mac[i] = lc.vinput<128>();
     }
     Q.private_input();
@@ -231,7 +231,7 @@ CircuitGenerationErrorCode generate_delegated_circuit(
     w->input(lc);
     mdoc_s.assert_delegated_signatures(pkX, pkY, htr, agent_pkX, agent_pkY,
                                        &mac[0], &mac[2], &mac[4], &mac[6],
-                                       &mac[8], mac[10], *w);
+                                       mac[8], *w);
 
     auto circ = Q.mkcircuit(/*nc=*/1);
     dump_info("delegated_sig", Q);
@@ -269,8 +269,8 @@ CircuitGenerationErrorCode generate_delegated_circuit(
         number_of_attributes);
     delegation_in.input(lc);
 
-    MACTag mac[11]; /* 5 macs + av */
-    for (size_t i = 0; i < 11; ++i) {
+    MACTag mac[9]; /* 4 macs + av */
+    for (size_t i = 0; i < 9; ++i) {
       mac[i] = lc.eltw_input();
     }
 
@@ -279,7 +279,6 @@ CircuitGenerationErrorCode generate_delegated_circuit(
     v256 dpkx = lc.template vinput<256>();
     v256 dpky = lc.template vinput<256>();
     v256 delegation_e = lc.template vinput<256>();
-    v256 revocation_status_e = lc.template vinput<256>();
 
     auto w = std::make_unique<MdocHash::Witness>(number_of_attributes);
     w->input(lc);
@@ -287,21 +286,20 @@ CircuitGenerationErrorCode generate_delegated_circuit(
     delegation_w.input(lc);
 
     Q.begin_full_field();
-    MACWitness macw[5]; /* MACs for e, dpkx, dpky, delegation_e, revocation_status_e */
-    for (size_t i = 0; i < 5; ++i) {
+    MACWitness macw[4]; /* MACs for e, dpkx, dpky, delegation_e */
+    for (size_t i = 0; i < 4; ++i) {
       macw[i].input(lc);
     }
 
     mdoc_h.assert_valid_hash_mdoc(oa.data(), now, e, dpkx, dpky, *w);
     mdoc_h.assert_delegation_policy(delegation_in, now, delegation_e,
-                                    revocation_status_e, delegation_w);
+                                    delegation_w);
 
-    MACTag a_v = mac[10];
+    MACTag a_v = mac[8];
     mac_check.verify_mac(&mac[0], a_v, e, macw[0]);
     mac_check.verify_mac(&mac[2], a_v, dpkx, macw[1]);
     mac_check.verify_mac(&mac[4], a_v, dpky, macw[2]);
     mac_check.verify_mac(&mac[6], a_v, delegation_e, macw[3]);
-    mac_check.verify_mac(&mac[8], a_v, revocation_status_e, macw[4]);
 
     auto circ = Q.mkcircuit(/*nc=*/1);
     dump_info("delegated_hash", Q);

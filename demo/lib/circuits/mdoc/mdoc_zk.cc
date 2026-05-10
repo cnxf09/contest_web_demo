@@ -147,10 +147,10 @@ struct ProverState {
 };
 
 struct DelegatedProverState {
-  Elt common[5];  // e2, dpkx, dpky, delegation digest, revocation status digest
-  gf2k ap[10];
+  Elt common[4];  // e2, dpkx, dpky, delegation digest
+  gf2k ap[8];
   using mac_witness = MacGF2Witness;
-  mac_witness macs[5];
+  mac_witness macs[4];
 };
 
 static constexpr size_t kDelegatedSigMacIndex = 6;
@@ -166,9 +166,7 @@ void fill_signature_inputs(DenseFiller<Fp256Base>& sig_filler, const Elt& pkX,
 size_t delegation_public_inputs_size(size_t num_attrs) {
   return 8 * (32 + 32 + 1 + kDelegationMaxClaims * kDelegationClaimHashSize +
               kDelegationExpiresSize + kDelegationAgentIdHashSize +
-              num_attrs * kDelegationClaimHashSize +
-              32 + kDelegationRevocationEpochSize + kDelegationExpiresSize +
-              kDelegationRevocationFlagSize);
+              num_attrs * kDelegationClaimHashSize);
 }
 
 size_t getDelegatedHashMacIndex(size_t numAttrs, size_t version) {
@@ -224,35 +222,6 @@ std::vector<uint8_t> build_delegation_message_bytes(
   return msg;
 }
 
-std::vector<uint8_t> build_revocation_id_message_bytes(
-    const uint8_t delegation_digest[32]) {
-  static constexpr uint8_t kDomain[kDelegationRevocationIdDomainSize] = {
-      'Z', 'K', 'D', 'E', 'L', 'I', 'D', '1'};
-  std::vector<uint8_t> msg;
-  msg.reserve(kDelegationRevocationIdMsgSize);
-  msg.insert(msg.end(), std::begin(kDomain), std::end(kDomain));
-  msg.insert(msg.end(), delegation_digest, delegation_digest + 32);
-  return msg;
-}
-
-std::vector<uint8_t> build_revocation_status_message_bytes(
-    const uint8_t revocation_id[32], const uint8_t* revocation_epoch_be,
-    const char* revocation_expires, uint8_t revocation_revoked) {
-  static constexpr uint8_t kDomain[kDelegationRevocationStatusDomainSize] = {
-      'Z', 'K', 'D', 'E', 'L', 'S', 'T', '1'};
-  std::vector<uint8_t> msg;
-  msg.reserve(kDelegationRevocationStatusMsgSize);
-  msg.insert(msg.end(), std::begin(kDomain), std::end(kDomain));
-  msg.insert(msg.end(), revocation_id, revocation_id + 32);
-  msg.insert(msg.end(), revocation_epoch_be,
-             revocation_epoch_be + kDelegationRevocationEpochSize);
-  msg.insert(msg.end(), reinterpret_cast<const uint8_t*>(revocation_expires),
-             reinterpret_cast<const uint8_t*>(revocation_expires) +
-                 kDelegationExpiresSize);
-  msg.push_back(revocation_revoked);
-  return msg;
-}
-
 void fill_delegation_public_inputs(DenseFiller<f_128>& hash_filler,
                                    const Elt& agent_pkX,
                                    const Elt& agent_pkY,
@@ -260,13 +229,8 @@ void fill_delegation_public_inputs(DenseFiller<f_128>& hash_filler,
                                    size_t allowed_claim_count,
                                    const char* policy_expires,
                                    const uint8_t* agent_id_hash,
-                                   const uint8_t* requested_claim_hashes,
-                                   size_t attrs_len,
-                                   const uint8_t* revocation_id,
-                                   const uint8_t* revocation_epoch_be,
-                                   const char* revocation_expires,
-                                   uint8_t revocation_revoked,
-                                   const f_128& Fs) {
+  const uint8_t* requested_claim_hashes,
+  size_t attrs_len, const f_128& Fs) {
   uint8_t buf[32];
   field_to_be_bytes(buf, agent_pkX);
   fill_bit_string(hash_filler, buf, 32, 32, Fs);
@@ -293,14 +257,6 @@ void fill_delegation_public_inputs(DenseFiller<f_128>& hash_filler,
                     requested_claim_hashes + i * kDelegationClaimHashSize,
                     kDelegationClaimHashSize, kDelegationClaimHashSize, Fs);
   }
-  fill_bit_string(hash_filler, revocation_id, 32, 32, Fs);
-  fill_bit_string(hash_filler, revocation_epoch_be,
-                  kDelegationRevocationEpochSize,
-                  kDelegationRevocationEpochSize, Fs);
-  fill_bit_string(hash_filler,
-                  reinterpret_cast<const uint8_t*>(revocation_expires),
-                  kDelegationExpiresSize, kDelegationExpiresSize, Fs);
-  hash_filler.push_back(revocation_revoked, 8, Fs);
 }
 
 void fill_delegated_signature_public_inputs(
@@ -310,7 +266,7 @@ void fill_delegated_signature_public_inputs(
   fill_signature_inputs(sig_filler, pkX, pkY, htr);
   sig_filler.push_back(agent_pkX);
   sig_filler.push_back(agent_pkY);
-  for (size_t i = 0; i < 10; ++i) {
+  for (size_t i = 0; i < 8; ++i) {
     fill_gf2k<f_128, Fp256Base>(macs[i], sig_filler, p256_base);
   }
   fill_gf2k<f_128, Fp256Base>(av, sig_filler, p256_base);
@@ -324,8 +280,6 @@ bool fill_delegated_public_inputs(
     const uint8_t* docType, size_t dt_len, const uint8_t* allowed_hashes,
     size_t allowed_count, const char* policy_expires,
     const uint8_t* agent_id_hash, const uint8_t* requested_hashes,
-    const uint8_t* revocation_id, const uint8_t* revocation_epoch_be,
-    const char* revocation_expires, uint8_t revocation_revoked,
     const gf2k macs[], gf2k av, const f_128& Fs, size_t version) {
   if (fill_attributes(hash_filler, attrs, attrs_len, now, Fs, version) !=
       MDOC_PROVER_SUCCESS) {
@@ -333,11 +287,8 @@ bool fill_delegated_public_inputs(
   }
   fill_delegation_public_inputs(hash_filler, agent_pkX, agent_pkY,
                                 allowed_hashes, allowed_count, policy_expires,
-                                agent_id_hash, requested_hashes, attrs_len,
-                                revocation_id, revocation_epoch_be,
-                                revocation_expires,
-                                revocation_revoked, Fs);
-  for (size_t i = 0; i < 10; ++i) {
+                                agent_id_hash, requested_hashes, attrs_len, Fs);
+  for (size_t i = 0; i < 8; ++i) {
     fill_gf2k<f_128, f_128>(macs[i], hash_filler, Fs);
   }
   fill_gf2k<f_128, f_128>(av, hash_filler, Fs);
@@ -504,11 +455,7 @@ MdocProverErrorCode fill_delegated_witness(
     size_t delegation_sig_len, const uint8_t* agent_sig, size_t agent_sig_len,
     const uint8_t* allowed_hashes, size_t allowed_count,
     const char* policy_expires, const uint8_t* agent_id_hash,
-    const uint8_t* requested_hashes, const uint8_t* revocation_id_public,
-    const uint8_t* revocation_epoch_be, const char* revocation_expires,
-    uint8_t revocation_revoked, const uint8_t* revocation_sig,
-    size_t revocation_sig_len,
-    DelegatedProverState& state,
+    const uint8_t* requested_hashes, DelegatedProverState& state,
     SecureRandomEngine& rng, const f_128& Fs, size_t version) {
   using MdocHW = MdocHashWitness<P256, f_128>;
   using MdocSW = MdocSignatureWitness<P256, Fp256Scalar>;
@@ -525,10 +472,8 @@ MdocProverErrorCode fill_delegated_witness(
   }
   fill_delegation_public_inputs(fill_s, agent_pkX, agent_pkY, allowed_hashes,
                                 allowed_count, policy_expires, agent_id_hash,
-                                requested_hashes, attrs_len,
-                                revocation_id_public, revocation_epoch_be,
-                                revocation_expires, revocation_revoked, Fs);
-  for (size_t i = 0; i < 10 + 1; ++i) {
+                                requested_hashes, attrs_len, Fs);
+  for (size_t i = 0; i < 8 + 1; ++i) {
     fill_gf2k<f_128, f_128>(Fs.zero(), fill_s, Fs);
   }
 
@@ -550,43 +495,15 @@ MdocProverErrorCode fill_delegated_witness(
   N delegation_ne = nat_from_be<N>(delegation_digest);
   Elt delegation_e = p256_base.to_montgomery(delegation_ne);
 
-  std::vector<uint8_t> revocation_id_msg =
-      build_revocation_id_message_bytes(delegation_digest);
-  uint8_t revocation_id[kSHA256DigestSize];
-  SHA256 revocation_id_sha;
-  revocation_id_sha.Update(revocation_id_msg.data(), revocation_id_msg.size());
-  revocation_id_sha.DigestData(revocation_id);
-  if (std::memcmp(revocation_id, revocation_id_public, kSHA256DigestSize) != 0) {
-    return MDOC_PROVER_INVALID_INPUT;
-  }
-
-  std::vector<uint8_t> revocation_status_msg =
-      build_revocation_status_message_bytes(revocation_id, revocation_epoch_be,
-                                            revocation_expires,
-                                            revocation_revoked);
-  uint8_t revocation_status_digest[kSHA256DigestSize];
-  SHA256 revocation_status_sha;
-  revocation_status_sha.Update(revocation_status_msg.data(),
-                               revocation_status_msg.size());
-  revocation_status_sha.DigestData(revocation_status_digest);
-  N revocation_status_ne = nat_from_be<N>(revocation_status_digest);
-  Elt revocation_status_e = p256_base.to_montgomery(revocation_status_ne);
-
-  N del_r, del_s, agent_r, agent_s, rev_r, rev_s;
+  N del_r, del_s, agent_r, agent_s;
   if (!parse_signature_rs(delegation_sig, delegation_sig_len, &del_r, &del_s) ||
-      !parse_signature_rs(agent_sig, agent_sig_len, &agent_r, &agent_s) ||
-      !parse_signature_rs(revocation_sig, revocation_sig_len, &rev_r, &rev_s)) {
+      !parse_signature_rs(agent_sig, agent_sig_len, &agent_r, &agent_s)) {
     return MDOC_PROVER_INVALID_INPUT;
   }
 
   EcdsaWitness delegation_w(p256_scalar, p256);
   if (!delegation_w.compute_witness(sw->dpkx_, sw->dpky_, delegation_ne, del_r,
                                     del_s)) {
-    return MDOC_PROVER_SIGNATURE_FAILURE;
-  }
-  EcdsaWitness revocation_w(p256_scalar, p256);
-  if (!revocation_w.compute_witness(sw->dpkx_, sw->dpky_,
-                                    revocation_status_ne, rev_r, rev_s)) {
     return MDOC_PROVER_SIGNATURE_FAILURE;
   }
   N agent_ne = compute_transcript_hash<N>(tr, tr_len, &hw->pm_.doc_type_);
@@ -596,21 +513,19 @@ MdocProverErrorCode fill_delegated_witness(
     return MDOC_PROVER_SIGNATURE_FAILURE;
   }
 
-  gf2k zero_macs[10];
+  gf2k zero_macs[8];
   for (auto& m : zero_macs) {
     m = Fs.zero();
   }
   fill_delegated_signature_public_inputs(fill_b, pkX, pkY, sw->e2_, agent_pkX,
                                          agent_pkY, zero_macs, Fs.zero());
 
-  state = {.common = {hw->e_, hw->dpkx_, hw->dpky_, delegation_e,
-                      revocation_status_e}};
+  state = {.common = {hw->e_, hw->dpkx_, hw->dpky_, delegation_e}};
   MACReference<f_128> mac_ref;
-  mac_ref.sample(state.ap, 10, &rng);
+  mac_ref.sample(state.ap, 8, &rng);
 
   uint8_t buf[Fp256Base::kBytes];
-  Fp256Base::Elt tt[5] = {hw->e_, hw->dpkx_, hw->dpky_, delegation_e,
-                          revocation_status_e};
+  Fp256Base::Elt tt[4] = {hw->e_, hw->dpkx_, hw->dpky_, delegation_e};
   for (size_t i = 0; i < 3; ++i) {
     p256_base.to_bytes_field(buf, tt[i]);
     sw->macs_[i].compute_witness(&state.ap[2 * i], buf);
@@ -621,11 +536,6 @@ MdocProverErrorCode fill_delegated_witness(
   MacWitnessF delegation_mac(p256_base, Fs);
   delegation_mac.compute_witness(&state.ap[6], buf);
   state.macs[3].compute_witness(&state.ap[6]);
-  fill_bit_string(fill_s, buf, 32, 32, Fs);
-  p256_base.to_bytes_field(buf, revocation_status_e);
-  MacWitnessF revocation_status_mac(p256_base, Fs);
-  revocation_status_mac.compute_witness(&state.ap[8], buf);
-  state.macs[4].compute_witness(&state.ap[8]);
   fill_bit_string(fill_s, buf, 32, 32, Fs);
 
   hw->fill_witness(fill_s, version);
@@ -639,28 +549,6 @@ MdocProverErrorCode fill_delegated_witness(
   for (size_t i = 0; i < kDelegationMsgSHABlocks; ++i) {
     fill_sha_witness(fill_s, delegation_bw[i], Fs);
   }
-  uint8_t revocation_id_nb;
-  uint8_t revocation_id_in[kDelegationRevocationIdSHABlocks * 64];
-  FlatSHA256Witness::BlockWitness
-      revocation_id_bw[kDelegationRevocationIdSHABlocks];
-  FlatSHA256Witness::transform_and_witness_message(
-      revocation_id_msg.size(), revocation_id_msg.data(),
-      kDelegationRevocationIdSHABlocks, revocation_id_nb, revocation_id_in,
-      revocation_id_bw);
-  for (size_t i = 0; i < kDelegationRevocationIdSHABlocks; ++i) {
-    fill_sha_witness(fill_s, revocation_id_bw[i], Fs);
-  }
-  uint8_t revocation_status_nb;
-  uint8_t revocation_status_in[kDelegationRevocationStatusSHABlocks * 64];
-  FlatSHA256Witness::BlockWitness
-      revocation_status_bw[kDelegationRevocationStatusSHABlocks];
-  FlatSHA256Witness::transform_and_witness_message(
-      revocation_status_msg.size(), revocation_status_msg.data(),
-      kDelegationRevocationStatusSHABlocks, revocation_status_nb,
-      revocation_status_in, revocation_status_bw);
-  for (size_t i = 0; i < kDelegationRevocationStatusSHABlocks; ++i) {
-    fill_sha_witness(fill_s, revocation_status_bw[i], Fs);
-  }
 
   for (auto& mac : state.macs) {
     mac.fill_witness(fill_s);
@@ -668,12 +556,9 @@ MdocProverErrorCode fill_delegated_witness(
 
   sw->fill_witness(fill_b);
   fill_b.push_back(delegation_e);
-  fill_b.push_back(revocation_status_e);
   delegation_w.fill_witness(fill_b);
-  revocation_w.fill_witness(fill_b);
   agent_w.fill_witness(fill_b);
   delegation_mac.fill_witness(fill_b);
-  revocation_status_mac.fill_witness(fill_b);
 
   return MDOC_PROVER_SUCCESS;
 }
@@ -1108,11 +993,7 @@ MdocProverErrorCode run_mdoc_delegated_prover(
     const uint8_t* agent_sig, size_t agent_sig_len,
     const uint8_t* allowed_claim_hashes, size_t allowed_claim_count,
     const char* policy_expires, const uint8_t* agent_id_hash,
-    const uint8_t* requested_claim_hashes,
-    const uint8_t* revocation_id, const uint8_t* revocation_epoch_be,
-    const char* revocation_expires, uint8_t revocation_revoked,
-    const uint8_t* revocation_sig, size_t revocation_sig_len,
-    uint8_t** prf, size_t* proof_len,
+    const uint8_t* requested_claim_hashes, uint8_t** prf, size_t* proof_len,
     const ZkSpecStruct* zk_spec) {
   if (bcp == nullptr || mdoc == nullptr || pkx == nullptr || pky == nullptr ||
       transcript == nullptr || attrs == nullptr || now == nullptr ||
@@ -1120,16 +1001,12 @@ MdocProverErrorCode run_mdoc_delegated_prover(
       delegation_sig == nullptr || agent_sig == nullptr ||
       allowed_claim_hashes == nullptr || policy_expires == nullptr ||
       agent_id_hash == nullptr || requested_claim_hashes == nullptr ||
-      revocation_id == nullptr || revocation_epoch_be == nullptr ||
-      revocation_expires == nullptr || revocation_sig == nullptr ||
       prf == nullptr || proof_len == nullptr || zk_spec == nullptr) {
     return MDOC_PROVER_NULL_INPUT;
   }
   if (allowed_claim_count > kDelegationMaxClaims ||
       strlen(policy_expires) != kDelegationExpiresSize ||
-      strlen(revocation_expires) != kDelegationExpiresSize ||
-      delegation_sig_len != 64 || agent_sig_len != 64 ||
-      revocation_sig_len != 64) {
+      delegation_sig_len != 64 || agent_sig_len != 64) {
     return MDOC_PROVER_INVALID_INPUT;
   }
 
@@ -1169,9 +1046,7 @@ MdocProverErrorCode run_mdoc_delegated_prover(
       transcript, tr_len, attrs, attrs_len, (const uint8_t*)now,
       delegation_sig, delegation_sig_len, agent_sig, agent_sig_len,
       allowed_claim_hashes, allowed_claim_count, policy_expires, agent_id_hash,
-      requested_claim_hashes, revocation_id, revocation_epoch_be,
-      revocation_expires, revocation_revoked, revocation_sig,
-      revocation_sig_len, state, rng, Fs, zk_spec->version);
+      requested_claim_hashes, state, rng, Fs, zk_spec->version);
   if (ok != MDOC_PROVER_SUCCESS) return ok;
 
   Transcript tp(transcript, tr_len, zk_spec->version);
@@ -1190,19 +1065,19 @@ MdocProverErrorCode run_mdoc_delegated_prover(
   hash_p.commit(h_zk, W_hash, tp, rng);
   sig_p.commit(sig_zk, W_sig, tp, rng);
 
-  gf2k av = generate_mac_key(tp), macs[10];
-  uint8_t macs_b[10 * f_128::kBytes];
-  compute_macs(5, state.common, macs, macs_b, state.ap, av);
+  gf2k av = generate_mac_key(tp), macs[8];
+  uint8_t macs_b[8 * f_128::kBytes];
+  compute_macs(4, state.common, macs, macs_b, state.ap, av);
   update_macs_count(W_sig, W_hash, kDelegatedSigMacIndex,
                     getDelegatedHashMacIndex(attrs_len, zk_spec->version),
-                    macs, 10, av, Fs);
+                    macs, 8, av, Fs);
 
   if (!hash_p.prove(h_zk, W_hash, tp)) return MDOC_PROVER_GENERAL_FAILURE;
   if (!sig_p.prove(sig_zk, W_sig, tp)) return MDOC_PROVER_GENERAL_FAILURE;
 
   std::vector<uint8_t> buf;
-  buf.reserve(10 * f_128::kBytes + h_zk.size() + sig_zk.size());
-  buf.insert(buf.begin(), macs_b, macs_b + 10 * f_128::kBytes);
+  buf.reserve(8 * f_128::kBytes + h_zk.size() + sig_zk.size());
+  buf.insert(buf.begin(), macs_b, macs_b + 8 * f_128::kBytes);
   h_zk.write(buf, Fs);
   sig_zk.write(buf, p256_base);
   *proof_len = buf.size();
@@ -1220,22 +1095,17 @@ MdocVerifierErrorCode run_mdoc_delegated_verifier(
     const char* agent_pky, const uint8_t* allowed_claim_hashes,
     size_t allowed_claim_count, const char* policy_expires,
     const uint8_t* agent_id_hash, const uint8_t* requested_claim_hashes,
-    const uint8_t* revocation_id, const uint8_t* revocation_epoch_be,
-    const char* revocation_expires, uint8_t revocation_revoked,
     const ZkSpecStruct* zk_spec) {
   if (bcp == nullptr || pkx == nullptr || pky == nullptr ||
       transcript == nullptr || attrs == nullptr || now == nullptr ||
       zkproof == nullptr || docType == nullptr || agent_pkx == nullptr ||
       agent_pky == nullptr || allowed_claim_hashes == nullptr ||
       policy_expires == nullptr || agent_id_hash == nullptr ||
-      requested_claim_hashes == nullptr || revocation_id == nullptr ||
-      revocation_epoch_be == nullptr || revocation_expires == nullptr ||
-      zk_spec == nullptr) {
+      requested_claim_hashes == nullptr || zk_spec == nullptr) {
     return MDOC_VERIFIER_NULL_INPUT;
   }
   if (allowed_claim_count > kDelegationMaxClaims ||
       strlen(policy_expires) != kDelegationExpiresSize ||
-      strlen(revocation_expires) != kDelegationExpiresSize ||
       proof_len < 20000) {
     return MDOC_VERIFIER_INVALID_INPUT;
   }
@@ -1273,8 +1143,8 @@ MdocVerifierErrorCode run_mdoc_delegated_verifier(
   const std::vector<uint8_t> zbuf(zkproof, zkproof + proof_len);
   ReadBuffer rb(zbuf);
 
-  gf2k macs[10];
-  for (size_t i = 0; i < 10; ++i) {
+  gf2k macs[8];
+  for (size_t i = 0; i < 8; ++i) {
     macs[i] = Fs.of_bytes_field(rb.next(f_128::kBytes)).value();
   }
   if (!pr_hash.read(rb, Fs)) return MDOC_VERIFIER_HASH_PARSING_FAILURE;
@@ -1306,9 +1176,8 @@ MdocVerifierErrorCode run_mdoc_delegated_verifier(
           sig_filler, hash_filler, pkX, pkY, agent_pkX, agent_pkY, transcript,
           tr_len, attrs, attrs_len, (const uint8_t*)now, (const uint8_t*)docType,
           dlen, allowed_claim_hashes, allowed_claim_count, policy_expires,
-          agent_id_hash, requested_claim_hashes, revocation_id,
-          revocation_epoch_be, revocation_expires, revocation_revoked, macs,
-          av, Fs, zk_spec->version)) {
+          agent_id_hash, requested_claim_hashes, macs, av, Fs,
+          zk_spec->version)) {
     return MDOC_VERIFIER_GENERAL_FAILURE;
   }
   if (hash_filler.size() != c_hash->npub_in ||

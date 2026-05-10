@@ -5,7 +5,6 @@
 
 #include "examples/delegation_demo/shared/delegation_crypto.h"
 #include "examples/delegation_demo/shared/delegation_files.h"
-#include "examples/delegation_demo/shared/delegation_revocation.h"
 #include "examples/delegation_demo/shared/types.h"
 #include "examples/mdoc_anoncred/shared/crypto.h"
 #include "examples/mdoc_anoncred/shared/files.h"
@@ -14,17 +13,6 @@
 #include "examples/mdoc_anoncred/shared/types.h"
 
 namespace proofs {
-namespace {
-
-std::vector<uint8_t> Uint64Be(uint64_t v) {
-  std::vector<uint8_t> out(8);
-  for (int i = 7; i >= 0; --i) {
-    out[7 - i] = static_cast<uint8_t>((v >> (i * 8)) & 0xff);
-  }
-  return out;
-}
-
-}  // namespace
 
 bool RunAgentPresentCommand(const std::filesystem::path& delegation_dir,
                             const std::filesystem::path& issuer_public_dir,
@@ -86,20 +74,6 @@ bool RunAgentPresentCommand(const std::filesystem::path& delegation_dir,
     return false;
   }
 
-  DelegationRevocationStatus revocation_status;
-  if (!ReadDelegationRevocationStatusJson(
-          delegation_dir / "delegation_revocation_status.json",
-          &revocation_status, err)) {
-    if (err != nullptr) *err = "failed to read delegation revocation status: " + *err;
-    return false;
-  }
-  if (!VerifyDelegationRevocationStatus(
-          revocation_status, holder.device_pkx_hex, holder.device_pky_hex,
-          del_msg, request.now_iso8601, err)) {
-    if (err != nullptr) *err = "delegation revocation check failed: " + *err;
-    return false;
-  }
-
   std::vector<std::string> requested_aliases;
   requested_aliases.reserve(request.claims.size());
   for (const auto& claim : request.claims) {
@@ -118,17 +92,6 @@ bool RunAgentPresentCommand(const std::filesystem::path& delegation_dir,
   if (!HexToBytes(del_sig, &del_sig_bytes, err)) {
     return false;
   }
-  std::vector<uint8_t> revocation_sig_bytes;
-  if (!HexToBytes(revocation_status.sig_hex, &revocation_sig_bytes, err)) {
-    return false;
-  }
-  std::vector<uint8_t> revocation_id_bytes;
-  if (!HexToBytes(revocation_status.delegation_id_hex, &revocation_id_bytes,
-                  err)) {
-    return false;
-  }
-  const std::vector<uint8_t> revocation_epoch_be =
-      Uint64Be(revocation_status.epoch);
 
   std::vector<uint8_t> agent_digest;
   if (!ComputeDeviceAuthenticationDigest(request.transcript_bytes,
@@ -143,15 +106,13 @@ bool RunAgentPresentCommand(const std::filesystem::path& delegation_dir,
   const std::string agent_sig = HexPrefixed(agent_sig_bytes.data(),
                                            agent_sig_bytes.size());
 
-  // 6. 生成包含约束⑦-⑪的 ZK 证明
+  // 6. 生成包含约束⑦-⑩的 ZK 证明
   MdocPresentation presentation;
   if (!ProveDelegatedMdocPresentation(
           holder, issuer_public, request, agent_pkx, agent_pky, del_sig_bytes,
           agent_sig_bytes, allowed_hashes, policy.allowed_claims.size(),
-          policy.expires, agent_id_hash, requested_hashes,
-          revocation_id_bytes, revocation_epoch_be, revocation_status.expires,
-          revocation_status.revoked ? 1 : 0, revocation_sig_bytes,
-          &presentation, err)) {
+          policy.expires, agent_id_hash, requested_hashes, &presentation,
+          err)) {
     return false;
   }
 
@@ -166,11 +127,6 @@ bool RunAgentPresentCommand(const std::filesystem::path& delegation_dir,
                                 agent_sig,
                                 holder.device_pkx_hex, holder.device_pky_hex,
                                 policy, err)) {
-    return false;
-  }
-  if (!WriteDelegationRevocationStatusJson(
-          out_dir / "delegation_revocation_status.json",
-          revocation_status, err)) {
     return false;
   }
 

@@ -16,7 +16,6 @@ void Usage() {
             << "    --predicate <c:op:v>  通用谓词，如 height:GE:170，可多次指定\n"
             << "    --expires <iso8601>   委托过期时间，如 2027-01-01T00:00:00Z\n"
             << "    --agent-id <id>       Agent 标识（可选，默认 'agent'）\n"
-            << "    --revoked             写出已撤销委托状态（用于负例测试）\n"
             << "    --out <dir>           输出 delegation/ 目录\n"
             << "\n示例：\n"
             << "  delegation_demo_alice delegate \\\n"
@@ -47,13 +46,6 @@ std::vector<std::string> GetFlagAll(int argc, char* argv[], const std::string& n
   return result;
 }
 
-bool HasFlag(int argc, char* argv[], const std::string& name) {
-  for (int i = 0; i < argc; ++i) {
-    if (std::string(argv[i]) == name) return true;
-  }
-  return false;
-}
-
 }  // namespace
 
 int main(int argc, char* argv[]) {
@@ -74,7 +66,6 @@ int main(int argc, char* argv[]) {
 
   const char* agent_id_c = GetFlag(argc, argv, "--agent-id");
   const std::string agent_id = (agent_id_c != nullptr) ? agent_id_c : "agent";
-  const bool revoked = HasFlag(argc, argv, "--revoked");
 
   std::string err;
   std::vector<std::string> claims = GetFlagAll(argc, argv, "--claim");
@@ -111,7 +102,6 @@ int main(int argc, char* argv[]) {
           predicates,
           std::string(expires_c),
           agent_id,
-          revoked,
           std::filesystem::path(out_c),
           &err)) {
     std::cerr << "delegate failed: " << err << "\n";
@@ -124,6 +114,5 @@ int main(int argc, char* argv[]) {
   std::cout << "\n";
   std::cout << "  expires: " << expires_c << "\n";
   std::cout << "  agent-id: " << agent_id << "\n";
-  std::cout << "  revoked: " << (revoked ? "true" : "false") << "\n";
   return 0;
 }

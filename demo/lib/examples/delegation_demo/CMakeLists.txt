@@ -1,6 +1,5 @@
 add_library(delegation_demo_lib
   shared/delegation_crypto.cc
-  shared/delegation_revocation.cc
   shared/delegation_files.cc
   alice/delegate.cc
   agent/present.cc
