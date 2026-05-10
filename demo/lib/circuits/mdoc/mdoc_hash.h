@@ -118,6 +118,10 @@ class MdocHash {
     v8 expires[kDelegationExpiresSize];
     v8 agent_id_hash[kDelegationAgentIdHashSize];
     std::vector<std::vector<v8>> requested_claim_hashes;
+    v8 revocation_id[32];
+    v8 revocation_epoch[kDelegationRevocationEpochSize];
+    v8 revocation_expires[kDelegationExpiresSize];
+    v8 revocation_revoked;
 
     explicit DelegationPolicyInput(size_t num_attr) {
       requested_claim_hashes.resize(num_attr);
@@ -150,15 +154,34 @@ class MdocHash {
           h[i] = lc.template vinput<8>();
         }
       }
+      for (size_t i = 0; i < 32; ++i) {
+        revocation_id[i] = lc.template vinput<8>();
+      }
+      for (size_t i = 0; i < kDelegationRevocationEpochSize; ++i) {
+        revocation_epoch[i] = lc.template vinput<8>();
+      }
+      for (size_t i = 0; i < kDelegationExpiresSize; ++i) {
+        revocation_expires[i] = lc.template vinput<8>();
+      }
+      revocation_revoked = lc.template vinput<8>();
     }
   };
 
   struct DelegationPolicyWitness {
     ShaBlockWitness delegation_msg_sha[kDelegationMsgSHABlocks];
+    ShaBlockWitness revocation_id_sha[kDelegationRevocationIdSHABlocks];
+    ShaBlockWitness
+        revocation_status_sha[kDelegationRevocationStatusSHABlocks];
 
     void input(const LogicCircuit& lc) {
       for (size_t i = 0; i < kDelegationMsgSHABlocks; ++i) {
         delegation_msg_sha[i].input(lc);
+      }
+      for (size_t i = 0; i < kDelegationRevocationIdSHABlocks; ++i) {
+        revocation_id_sha[i].input(lc);
+      }
+      for (size_t i = 0; i < kDelegationRevocationStatusSHABlocks; ++i) {
+        revocation_status_sha[i].input(lc);
       }
     }
   };
@@ -340,11 +363,14 @@ class MdocHash {
   void assert_delegation_policy(const DelegationPolicyInput& in,
                                 const v8 now[/*20*/],
                                 const v256& delegation_e,
+                                const v256& revocation_status_e,
                                 const DelegationPolicyWitness& vw) const {
     const Memcmp<LogicCircuit> CMP(lc_);
     lc_.vassert_is_bit(in.allowed_count);
     lc_.assert1(lc_.vleq(in.allowed_count, kDelegationMaxClaims));
     lc_.assert1(CMP.lt(kDelegationExpiresSize, now, in.expires));
+    lc_.vassert_eq(in.revocation_revoked, 0);
+    lc_.assert1(CMP.lt(kDelegationExpiresSize, now, in.revocation_expires));
 
     for (const auto& requested : in.requested_claim_hashes) {
       BitW allowed = lc_.bit(0);
@@ -360,6 +386,24 @@ class MdocHash {
     const v8 nb = lc_.template vbit<8>((kDelegationMsgSize + 9 + 63) / 64);
     sha_.assert_message_hash(kDelegationMsgSHABlocks, nb, msg.data(),
                              delegation_e, vw.delegation_msg_sha);
+
+    auto id_msg = construct_revocation_id_message(delegation_e);
+    v256 revocation_id;
+    for (size_t i = 0; i < 256; ++i) {
+      revocation_id[i] = in.revocation_id[31 - (i / 8)][i % 8];
+    }
+    const v8 id_nb = lc_.template vbit<8>(
+        (kDelegationRevocationIdMsgSize + 9 + 63) / 64);
+    sha_.assert_message_hash(kDelegationRevocationIdSHABlocks, id_nb,
+                             id_msg.data(), revocation_id,
+                             vw.revocation_id_sha);
+
+    auto status_msg = construct_revocation_status_message(in);
+    const v8 status_nb = lc_.template vbit<8>(
+        (kDelegationRevocationStatusMsgSize + 9 + 63) / 64);
+    sha_.assert_message_hash(kDelegationRevocationStatusSHABlocks, status_nb,
+                             status_msg.data(), revocation_status_e,
+                             vw.revocation_status_sha);
   }
 
  private:
@@ -406,6 +450,68 @@ class MdocHash {
     for (size_t i = 0; i < 8; ++i) {
       put_const(static_cast<uint8_t>(bit_len >> (8 * (7 - i))));
     }
+    return msg;
+  }
+
+  void put_v256_be(std::vector<v8>* msg, size_t* p, const v256& e) const {
+    for (size_t i = 0; i < 32; ++i) {
+      v8 b;
+      for (size_t j = 0; j < 8; ++j) {
+        b[j] = e[(31 - i) * 8 + j];
+      }
+      (*msg)[(*p)++] = b;
+    }
+  }
+
+  void finish_sha_padding(std::vector<v8>* msg, size_t* p,
+                          uint64_t payload_size) const {
+    auto put_const = [&](uint8_t b) {
+      (*msg)[(*p)++] = lc_.template vbit<8>(b);
+    };
+    put_const(0x80);
+    if (((*p) % 64) == 0 || ((*p) % 64) > 56) {
+      while ((*p) % 64) put_const(0x00);
+    }
+    while (((*p) % 64) < 56) put_const(0x00);
+    const uint64_t bit_len = payload_size * 8;
+    for (size_t i = 0; i < 8; ++i) {
+      put_const(static_cast<uint8_t>(bit_len >> (8 * (7 - i))));
+    }
+  }
+
+  std::vector<v8> construct_revocation_id_message(
+      const v256& delegation_e) const {
+    static constexpr uint8_t kDomain[kDelegationRevocationIdDomainSize] = {
+        'Z', 'K', 'D', 'E', 'L', 'I', 'D', '1'};
+    const v8 zero = lc_.template vbit<8>(0x00);
+    std::vector<v8> msg(64 * kDelegationRevocationIdSHABlocks, zero);
+    size_t p = 0;
+    auto put_const = [&](uint8_t b) { msg[p++] = lc_.template vbit<8>(b); };
+    for (uint8_t b : kDomain) put_const(b);
+    put_v256_be(&msg, &p, delegation_e);
+    finish_sha_padding(&msg, &p, kDelegationRevocationIdMsgSize);
+    return msg;
+  }
+
+  std::vector<v8> construct_revocation_status_message(
+      const DelegationPolicyInput& in) const {
+    static constexpr uint8_t kDomain[kDelegationRevocationStatusDomainSize] = {
+        'Z', 'K', 'D', 'E', 'L', 'S', 'T', '1'};
+    const v8 zero = lc_.template vbit<8>(0x00);
+    std::vector<v8> msg(64 * kDelegationRevocationStatusSHABlocks, zero);
+    size_t p = 0;
+    auto put_const = [&](uint8_t b) { msg[p++] = lc_.template vbit<8>(b); };
+    auto put_v8 = [&](const v8& b) { msg[p++] = b; };
+    for (uint8_t b : kDomain) put_const(b);
+    for (size_t i = 0; i < 32; ++i) put_v8(in.revocation_id[i]);
+    for (size_t i = 0; i < kDelegationRevocationEpochSize; ++i) {
+      put_v8(in.revocation_epoch[i]);
+    }
+    for (size_t i = 0; i < kDelegationExpiresSize; ++i) {
+      put_v8(in.revocation_expires[i]);
+    }
+    put_v8(in.revocation_revoked);
+    finish_sha_padding(&msg, &p, kDelegationRevocationStatusMsgSize);
     return msg;
   }
 

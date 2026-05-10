@@ -143,6 +143,18 @@ static const size_t kDelegationMsgSize =
     kDelegationMaxClaims * kDelegationClaimHashSize +
     kDelegationExpiresSize + kDelegationAgentIdHashSize;
 static const size_t kDelegationMsgSHABlocks = 5;
+static const size_t kDelegationRevocationIdDomainSize = 8;
+static const size_t kDelegationRevocationStatusDomainSize = 8;
+static const size_t kDelegationRevocationEpochSize = 8;
+static const size_t kDelegationRevocationFlagSize = 1;
+static const size_t kDelegationRevocationIdMsgSize =
+    kDelegationRevocationIdDomainSize + 32;
+static const size_t kDelegationRevocationStatusMsgSize =
+    kDelegationRevocationStatusDomainSize + 32 +
+    kDelegationRevocationEpochSize + kDelegationExpiresSize +
+    kDelegationRevocationFlagSize;
+static const size_t kDelegationRevocationIdSHABlocks = 1;
+static const size_t kDelegationRevocationStatusSHABlocks = 2;
 
 // An upper-bound on the decompressed circuit size. It is better to make this
 // bound tight to avoid memory failure in the resource restricted Android
@@ -196,7 +208,11 @@ MdocProverErrorCode run_mdoc_delegated_prover(
     const uint8_t* agent_sig, size_t agent_sig_len,
     const uint8_t* allowed_claim_hashes, size_t allowed_claim_count,
     const char* policy_expires, const uint8_t* agent_id_hash,
-    const uint8_t* requested_claim_hashes, uint8_t** prf, size_t* proof_len,
+    const uint8_t* requested_claim_hashes,
+    const uint8_t* revocation_id, const uint8_t* revocation_epoch_be,
+    const char* revocation_expires, uint8_t revocation_revoked,
+    const uint8_t* revocation_sig, size_t revocation_sig_len,
+    uint8_t** prf, size_t* proof_len,
     const ZkSpecStruct* zk_spec_version);
 
 MdocVerifierErrorCode run_mdoc_delegated_verifier(
@@ -207,6 +223,8 @@ MdocVerifierErrorCode run_mdoc_delegated_verifier(
     const char* agent_pky, const uint8_t* allowed_claim_hashes,
     size_t allowed_claim_count, const char* policy_expires,
     const uint8_t* agent_id_hash, const uint8_t* requested_claim_hashes,
+    const uint8_t* revocation_id, const uint8_t* revocation_epoch_be,
+    const char* revocation_expires, uint8_t revocation_revoked,
     const ZkSpecStruct* zk_spec_version);
 
 // Produces a compressed version of the circuit bytes for the specified number
